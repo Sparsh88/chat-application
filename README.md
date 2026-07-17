@@ -1,6 +1,6 @@
-# Antigravity Chat | Premium SaaS Collaboration Platform
+# NebulaChat | Premium Real-Time SaaS Collaboration Platform
 
-Antigravity Chat is a production-ready, feature-rich, and visually stunning SaaS collaboration platform that combines the capabilities of Discord, Slack, Microsoft Teams, and Notion. It is built using a modern TypeScript full-stack architecture featuring a custom-designed glassmorphism UI.
+NebulaChat is a production-ready, feature-rich, and visually stunning SaaS collaboration platform that combines the capabilities of Discord, Slack, Microsoft Teams, and Notion. It is built using a modern TypeScript full-stack architecture featuring a custom-designed glassmorphism UI.
 
 ## 🚀 Key Highlights & Resume-Ready Features
 
@@ -31,7 +31,7 @@ Antigravity Chat is a production-ready, feature-rich, and visually stunning SaaS
 
 6. **🎨 Premium Glassmorphic Design System**
    * Tailored entirely using **Vanilla CSS variables** for dynamic modifications.
-   * Support for multiple accent themes: Indigo, Sage Green, Rose Gold, and Ocean Drift.
+   * Support for multiple accent themes: Indigo, Emerald Forest, Rose Gold, and Ocean Drift.
    * Smooth animations with `framer-motion` and custom UI skeletons.
 
 ---
@@ -40,14 +40,15 @@ Antigravity Chat is a production-ready, feature-rich, and visually stunning SaaS
 
 ```text
 chat-application/
-├── backend/                  # express, tsx, socket.io, prisma, sqlite
+├── backend/                  # express, tsx, socket.io, prisma, mongodb
 │   ├── prisma/
-│   │   └── schema.prisma     # SQL schemas for users, calls, E2EE logs
+│   │   └── schema.prisma     # database schemas for users, calls, meetings
 │   ├── src/
 │   │   ├── controllers/      # auth, analytics, meetings, AI controllers
 │   │   ├── middleware/       # JWT validations, rate-limiters
-│   │   ├── server.ts         # bootstraps REST server & SQL seeders
+│   │   ├── server.ts         # bootstraps REST server & database seeders
 │   │   └── socket.ts         # socket.io presence & WebRTC signaler
+│   ├── .env                  # local environment variables & connection string
 │   └── package.json
 │
 ├── frontend/                 # vite, react 18, typescript, framer-motion, recharts
@@ -58,6 +59,7 @@ chat-application/
 │   │   ├── App.tsx           # Context providers and main views router
 │   │   ├── index.css         # core design tokens & custom keyframes
 │   │   └── main.tsx
+│   ├── vercel.json           # Vercel proxy configuration rewrites
 │   ├── vite.config.ts
 │   └── package.json
 │
@@ -80,14 +82,14 @@ npm run install:all
 ```
 
 ### 3. Initialize the Database
-Configure database tables and generate Prisma clients:
+Configure your database connection string in `backend/.env` (e.g. your MongoDB Atlas connection string), then run:
 ```bash
 cd backend
 npm run prisma:generate
 npm run prisma:db
 cd ..
 ```
-*Note: This creates a file-based SQLite database (`dev.db`) and seeds it with demo users (`admin@antigravity.io`, `alex@company.com`, and `sarah@design.com`).*
+*Note: This generates Prisma clients, syncs database collections (supporting MongoDB Atlas), and seeds it with demo users (`admin@nebulachat.io`, `alex@company.com`, and `sarah@design.com`).*
 
 ### 4. Boot Dev Server
 Start both servers concurrently:
