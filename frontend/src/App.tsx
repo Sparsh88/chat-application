@@ -87,12 +87,14 @@ export default function App() {
 
   // Load profile of authenticated user
   useEffect(() => {
-    if (token) {
+    if (token && !user) {
+      let active = true;
       fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(r => r.json())
       .then(data => {
+        if (!active) return;
         if (data.user) {
           setUser(data.user);
           setThemeMode(data.user.theme === 'light' ? 'light' : 'dark');
@@ -100,9 +102,14 @@ export default function App() {
           logout();
         }
       })
-      .catch(() => logout());
+      .catch(() => {
+        if (active) logout();
+      });
+      return () => {
+        active = false;
+      };
     }
-  }, [token]);
+  }, [token, user]);
 
   // Bind CSS theme modes on data selectors
   useEffect(() => {

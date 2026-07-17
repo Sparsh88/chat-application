@@ -40,13 +40,13 @@ export async function signup(req: AuthenticatedRequest, res: Response) {
       { expiresIn: '7d' }
     );
 
-    await prisma.auditLog.create({
+    prisma.auditLog.create({
       data: {
         action: 'USER_SIGNUP',
         actorId: user.id,
         details: `User registered: ${user.username}`
       }
-    });
+    }).catch(err => console.error('Failed to create signup audit log:', err));
 
     return res.status(201).json({
       token,
@@ -91,18 +91,18 @@ export async function login(req: AuthenticatedRequest, res: Response) {
     );
 
     // Update online presence
-    await prisma.user.update({
+    prisma.user.update({
       where: { id: user.id },
       data: { onlinePresence: 'online' }
-    });
+    }).catch(err => console.error('Failed to update online presence:', err));
 
-    await prisma.auditLog.create({
+    prisma.auditLog.create({
       data: {
         action: 'USER_LOGIN',
         actorId: user.id,
         details: `User logged in: ${user.username}`
       }
-    });
+    }).catch(err => console.error('Failed to create login audit log:', err));
 
     return res.json({
       token,
