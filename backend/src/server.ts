@@ -230,79 +230,10 @@ async function seedDemoData() {
   console.log('Database seeding completed successfully.');
 }
 
-// Ensure required tables exist dynamically in SQLite
-async function ensureTablesExist() {
-  console.log('Verifying SQLite database schema tables exist...');
-  try {
-    // 1. Create Meeting Table if not exists
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS "Meeting" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "title" TEXT NOT NULL,
-        "description" TEXT,
-        "organizerId" TEXT NOT NULL,
-        "startTime" DATETIME NOT NULL,
-        "endTime" DATETIME NOT NULL,
-        "timeZone" TEXT NOT NULL DEFAULT 'Asia/Kolkata',
-        "recurrence" TEXT,
-        "invitees" TEXT NOT NULL,
-        "joinLink" TEXT NOT NULL,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    
-    // 2. Create AuditLog Table if not exists
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS "AuditLog" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "action" TEXT NOT NULL,
-        "actorId" TEXT NOT NULL,
-        "details" TEXT,
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    
-    // 3. Create Report Table if not exists
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS "Report" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "reporterId" TEXT NOT NULL,
-        "targetUserId" TEXT,
-        "targetMessageId" TEXT,
-        "reason" TEXT NOT NULL,
-        "details" TEXT,
-        "status" TEXT NOT NULL DEFAULT 'PENDING',
-        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // 4. Create CallHistory Table if not exists
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS "CallHistory" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "callerId" TEXT NOT NULL,
-        "receiverId" TEXT NOT NULL,
-        "type" TEXT NOT NULL,
-        "duration" INTEGER NOT NULL,
-        "endedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    
-    console.log('Required SQLite tables verified/created successfully.');
-  } catch (err) {
-    console.error('Failed to verify/create SQLite tables: ', err);
-  }
-}
-
 // Start Server
 server.listen(PORT, async () => {
   console.log(`Backend server is running on port ${PORT}`);
   try {
-    if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('mongodb')) {
-      console.log('MongoDB Atlas connection detected. Skipping SQLite table pre-creation.');
-    } else {
-      await ensureTablesExist();
-    }
     await seedDemoData();
   } catch (err) {
     console.error('Database connection / seeding failed: ', err);
