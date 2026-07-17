@@ -25,7 +25,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
   const [keyLogs, setKeyLogs] = useState<string>('Not negotiated');
 
   // Input Utility States
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const [disappearTime, setDisappearTime] = useState<number | null>(null); // null = off, otherwise in seconds
   const [scheduleDate, setScheduleDate] = useState<string>('');
   const [showScheduleInput, setShowScheduleInput] = useState(false);
@@ -37,7 +37,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
 
   // AI Modal
   const [aiResult, setAiResult] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
+
 
   // File Upload
   const [isDragging, setIsDragging] = useState(false);
@@ -88,8 +88,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
     const fetchHistory = async () => {
       try {
         // Select logic for group vs DM history
-        const url = `/api/users`; // Dummy call to simulate DB query
-        const token = localStorage.getItem('token');
+
         
         // Mock loading data to match database seed
         const seedMessages = [

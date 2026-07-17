@@ -11,21 +11,13 @@ interface SidebarProps {
   setActiveTab: (tab: 'chats' | 'calendar' | 'analytics' | 'friends' | 'settings') => void;
   onChatSelect: (chat: { id: string; name: string; isGroup: boolean; avatarUrl?: string } | null) => void;
   selectedChat: { id: string; name: string; isGroup: boolean; avatarUrl?: string } | null;
-  themeMode: string;
-  setThemeMode: (m: 'dark' | 'light') => void;
-  colorAccent: string;
-  setColorAccent: (a: string) => void;
 }
 
 export default function Sidebar({
   activeTab,
   setActiveTab,
   onChatSelect,
-  selectedChat,
-  themeMode,
-  setThemeMode,
-  colorAccent,
-  setColorAccent
+  selectedChat
 }: SidebarProps) {
   const { user, logout } = useContext(AuthContext)!;
   const { socket, onlineUsers } = useContext(SocketContext)!;
@@ -101,7 +93,7 @@ export default function Sidebar({
       {/* 1. Global Navigation Strip */}
       <div className="sidebar-nav-strip" style={{
         width: 80, background: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', 
-        alignItems: 'center', py: 20, padding: '16px 0', borderRight: '1px solid var(--border-glass)', justifyContent: 'space-between'
+        alignItems: 'center', padding: '16px 0', borderRight: '1px solid var(--border-glass)', justifyContent: 'space-between'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center', width: '100%' }}>
           <motion.div 

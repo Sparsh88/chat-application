@@ -275,16 +275,11 @@ export default function App() {
         <CallContext.Provider value={{ activeCall, startCall, acceptCall, rejectCall, endCall, isCallJoined }}>
           <div className="app-container">
             
-            {/* 1. Sidebar Left (Guilds & Utilities) */}
             <Sidebar 
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
               onChatSelect={setSelectedChat}
               selectedChat={selectedChat}
-              themeMode={themeMode}
-              setThemeMode={setThemeMode}
-              colorAccent={colorAccent}
-              setColorAccent={setColorAccent}
             />
 
             {/* 2. Main Content Board with Fading Page Transitions */}
