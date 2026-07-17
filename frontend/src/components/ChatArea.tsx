@@ -88,31 +88,33 @@ export default function ChatArea({ chat }: ChatAreaProps) {
     // Call history API
     const fetchHistory = async () => {
       try {
-        // Select logic for group vs DM history
+        const url = chat.isGroup
+          ? `/api/messages?groupId=${chat.id}`
+          : `/api/messages?recipientId=${chat.id}`;
 
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        const dbMessages = await res.json();
         
-        // Mock loading data to match database seed
-        const seedMessages = [
-          { id: '1', content: 'Hey there! How is the project going?', senderId: chat.id, createdAt: new Date(Date.now() - 3600000).toISOString() },
-          { id: '2', content: 'Just polishing the responsive analytics widget', senderId: user!.id, createdAt: new Date(Date.now() - 1800000).toISOString() }
-        ];
+        let loadedMessages = Array.isArray(dbMessages) ? dbMessages : [];
 
         // Decrypt if E2EE DM is selected
         if (!chat.isGroup && sharedKey) {
-          const decryptedSeed = await Promise.all(seedMessages.map(async m => {
-            if (m.senderId === chat.id) {
-              // Simulate encrypted channel payloads
-              const encrypted = await CryptoService.encryptMessage(m.content, sharedKey);
-              const clear = await CryptoService.decryptMessage(encrypted.ciphertext, encrypted.iv, sharedKey);
-              return { ...m, content: clear, isE2EE: true };
+          const decryptedSeed = await Promise.all(loadedMessages.map(async m => {
+            if (m.isE2EE && m.senderId === chat.id) {
+              const clear = await CryptoService.decryptMessage(m.content, m.encryptionIv, sharedKey);
+              return { ...m, content: clear };
             }
             return m;
           }));
           setMessages(decryptedSeed);
         } else {
-          setMessages(seedMessages);
+          setMessages(loadedMessages);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Failed to load chat history:', e);
+      }
     };
 
     fetchHistory();

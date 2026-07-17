@@ -120,7 +120,11 @@ export default function App() {
   // Establish Websockets when user authenticated
   useEffect(() => {
     if (user) {
-      const s = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+      const backendUrl = import.meta.env.VITE_API_URL || 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          ? 'http://localhost:5000' 
+          : 'https://chat-application-ju4r.onrender.com');
+      const s = io(backendUrl);
       setSocket(s);
 
       s.emit('register_user', { userId: user.id });

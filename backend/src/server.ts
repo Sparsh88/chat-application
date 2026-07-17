@@ -93,6 +93,36 @@ app.get('/api/users', authenticateJWT, async (req, res) => {
   }
 });
 
+// Fetch message history for a group or user DM
+app.get('/api/messages', authenticateJWT, async (req, res) => {
+  const { recipientId, groupId } = req.query;
+  try {
+    let messages;
+    if (groupId) {
+      messages = await prisma.message.findMany({
+        where: { groupId: String(groupId) },
+        orderBy: { createdAt: 'asc' }
+      });
+    } else if (recipientId) {
+      const currentUserId = (req as any).user.id;
+      messages = await prisma.message.findMany({
+        where: {
+          OR: [
+            { senderId: currentUserId, receiverId: String(recipientId) },
+            { senderId: String(recipientId), receiverId: currentUserId }
+          ]
+        },
+        orderBy: { createdAt: 'asc' }
+      });
+    } else {
+      return res.status(400).json({ error: 'recipientId or groupId is required' });
+    }
+    return res.json(messages);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Group / Channels CRUD APIs
 app.post('/api/groups', authenticateJWT, async (req, res: any) => {
   const { name, description } = req.body;
