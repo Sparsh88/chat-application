@@ -229,6 +229,16 @@ export default function App() {
     }
   };
 
+  // If a session token exists but user profile is loading, show session restoring state
+  if (token && !user) {
+    return (
+      <div className="auth-fullscreen" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 16 }}>
+        <RefreshCw className="spin" size={40} color="#6366f1" />
+        <h3 style={{ color: 'var(--text-secondary)' }}>Restoring session...</h3>
+      </div>
+    );
+  }
+
   // Render Authentication screen if not logged in
   if (!user) {
     return (

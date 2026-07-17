@@ -29,8 +29,26 @@ export default function Sidebar({
   const [newChannelName, setNewChannelName] = useState('');
   const [newChannelDesc, setNewChannelDesc] = useState('');
 
+  // Load initial cached channels and friends
+  useEffect(() => {
+    const cachedChannels = localStorage.getItem('cached_channels');
+    const cachedFriends = localStorage.getItem('cached_friends');
+    if (cachedChannels) {
+      try {
+        setChannels(JSON.parse(cachedChannels));
+      } catch (e) {}
+    }
+    if (cachedFriends) {
+      try {
+        setFriends(JSON.parse(cachedFriends));
+      } catch (e) {}
+    }
+  }, []);
+
   // Fetch groups and users
   useEffect(() => {
+    if (!user?.id) return;
+
     const fetchSidebarData = async () => {
       try {
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
@@ -42,16 +60,21 @@ export default function Sidebar({
         const channelsData = await channelsRes.json();
         const usersData = await usersRes.json();
 
-        if (Array.isArray(channelsData)) setChannels(channelsData);
+        if (Array.isArray(channelsData)) {
+          setChannels(channelsData);
+          localStorage.setItem('cached_channels', JSON.stringify(channelsData));
+        }
         if (Array.isArray(usersData)) {
-          setFriends(usersData.filter(u => u.id !== user?.id));
+          const filteredFriends = usersData.filter(u => u.id !== user.id);
+          setFriends(filteredFriends);
+          localStorage.setItem('cached_friends', JSON.stringify(filteredFriends));
         }
       } catch (e) {
         console.error('Failed to load sidebar content');
       }
     };
     fetchSidebarData();
-  }, [user]);
+  }, [user?.id]);
 
   // Status Presence override
   const handlePresenceChange = (status: string) => {
