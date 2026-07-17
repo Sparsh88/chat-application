@@ -1,0 +1,107 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String    @id @default(uuid()) @map("_id")
+  email          String    @unique
+  username       String
+  passwordHash   String
+  customStatus   String?
+  onlinePresence String    @default("offline") // online, idle, dnd, offline
+  role           String    @default("USER")    // USER, ADMIN
+  theme          String    @default("default") // custom theme token or hex
+  verified       Boolean   @default(false)
+  avatarUrl      String?
+  createdAt      DateTime  @default(now())
+}
+
+model Friendship {
+  id          String   @id @default(uuid()) @map("_id")
+  requesterId String
+  receiverId  String
+  status      String   // PENDING, ACCEPTED, BLOCKED
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id                   String    @id @default(uuid()) @map("_id")
+  content              String
+  senderId             String
+  receiverId           String?   // For 1-to-1 DM
+  groupId              String?   // For channel/server message
+  isE2EE               Boolean   @default(false)
+  encryptionIv         String?   // Initialization vector for browser-decrypted message
+  fileUrl              String?   // If containing an upload
+  fileName             String?
+  fileType             String?
+  reactions            String?   // JSON string of reactions: { "emoji": ["userIds"] }
+  isDisappearing       Boolean   @default(false)
+  selfDestructDuration Int?      // In seconds
+  scheduledFor         DateTime? // Delayed message delivery date
+  createdAt            DateTime  @default(now())
+}
+
+model Group {
+  id          String   @id @default(uuid()) @map("_id")
+  name        String
+  avatarUrl   String?
+  description String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+}
+
+model GroupMember {
+  id       String   @id @default(uuid()) @map("_id")
+  groupId  String
+  userId   String
+  role     String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt DateTime @default(now())
+}
+
+model CallHistory {
+  id         String   @id @default(uuid()) @map("_id")
+  callerId   String
+  receiverId String
+  type       String   // VIDEO, VOICE
+  duration   Int      // in seconds
+  endedAt    DateTime @default(now())
+}
+
+model Meeting {
+  id          String   @id @default(uuid()) @map("_id")
+  title       String
+  description String?
+  organizerId String
+  startTime   DateTime
+  endTime     DateTime
+  timeZone    String   @default("UTC")
+  recurrence  String?  // NONE, DAILY, WEEKLY
+  invitees    String   // JSON list of email strings
+  joinLink    String
+  createdAt   DateTime @default(now())
+}
+
+model Report {
+  id              String   @id @default(uuid()) @map("_id")
+  reporterId      String
+  targetUserId    String?
+  targetMessageId String?
+  reason          String
+  details         String?
+  status          String   @default("PENDING") // PENDING, RESOLVED
+  createdAt       DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @map("_id")
+  action    String   // USER_LOGIN, FILE_UPLOAD, MESSAGE_REPORT, MEET_CREATE
+  actorId   String
+  details   String?
+  createdAt DateTime @default(now())
+}
