@@ -37,6 +37,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
 
   // AI Modal
   const [aiResult, setAiResult] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
 
   // File Upload
@@ -652,7 +653,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
       </form>
 
       {/* AI Assistant Modal panel side overlay */}
-      {aiResult && (
+      {(aiResult || aiLoading) && (
         <div style={{
           position: 'absolute', right: 20, top: 80, width: 300, maxHeight: 'calc(100vh - 120px)',
           overflowY: 'auto', zIndex: 99, padding: 16, borderRadius: 'var(--radius-md)'
@@ -664,7 +665,12 @@ export default function ChatArea({ chat }: ChatAreaProps) {
             <button style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setAiResult(null)}>✕</button>
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
-            {aiResult}
+            {aiLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)' }}>
+                <span className="pulse-indicator"></span>
+                <span>AI is compiling result...</span>
+              </div>
+            ) : aiResult}
           </div>
         </div>
       )}
