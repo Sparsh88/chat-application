@@ -223,6 +223,17 @@ export default function App() {
     setUser(updated);
   };
 
+  // Sync session logout across tabs in real-time
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token' && !e.newValue) {
+        logout();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // --- WebRTC Controls ---
   
   const startCall = (targetUserId: string, type: 'VIDEO' | 'VOICE') => {
