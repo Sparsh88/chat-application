@@ -61,12 +61,28 @@ export default function ChatArea({ chat }: ChatAreaProps) {
         // Get or generate static key pair for current user
         const ownKeyPair = await CryptoService.getStoredKeyPair(user!.id);
         
+        // Fetch latest peer public key from backend to bypass sidebar caching/race conditions
+        let peerPublicKeyStr = chat.publicKey;
+        try {
+          const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+          const res = await fetch('/api/users', { headers });
+          const users = await res.json();
+          if (Array.isArray(users)) {
+            const latestPeer = users.find(u => u.id === chat.id);
+            if (latestPeer && latestPeer.publicKey) {
+              peerPublicKeyStr = latestPeer.publicKey;
+            }
+          }
+        } catch (e) {
+          console.error('Failed to fetch latest peer public key', e);
+        }
+
         // Load peer's public key from the database if available, otherwise fallback to local mock generation
         let peerPublicKey: CryptoKey;
         let publicBase64Log = '';
-        if (chat.publicKey) {
-          peerPublicKey = await CryptoService.importPublicKey(chat.publicKey);
-          publicBase64Log = chat.publicKey;
+        if (peerPublicKeyStr) {
+          peerPublicKey = await CryptoService.importPublicKey(peerPublicKeyStr);
+          publicBase64Log = peerPublicKeyStr;
         } else {
           const peerKeyPair = await CryptoService.getStoredKeyPair(chat.id);
           peerPublicKey = peerKeyPair.publicKey;
