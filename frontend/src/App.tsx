@@ -132,6 +132,18 @@ export default function App() {
       });
       setSocket(s);
 
+      s.on('connect', () => {
+        console.log('🔌 Socket connected successfully! ID:', s.id);
+      });
+
+      s.on('connect_error', (err) => {
+        console.error('❌ Socket connection error:', err.message, err);
+      });
+
+      s.on('error', (err) => {
+        console.error('⚠️ Socket error event received:', err);
+      });
+
       s.emit('register_user', { userId: user.id });
 
       s.on('user_presence_change', ({ userId, presence }) => {
