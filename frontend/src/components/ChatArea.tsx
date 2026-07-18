@@ -8,7 +8,7 @@ import { AuthContext, SocketContext } from '../App.tsx';
 import { CryptoService } from '../services/CryptoService.ts';
 
 interface ChatAreaProps {
-  chat: { id: string; name: string; isGroup: boolean; avatarUrl?: string } | null;
+  chat: { id: string; name: string; isGroup: boolean; avatarUrl?: string; publicKey?: string } | null;
 }
 
 export default function ChatArea({ chat }: ChatAreaProps) {
@@ -61,15 +61,22 @@ export default function ChatArea({ chat }: ChatAreaProps) {
         // Get or generate static key pair for current user
         const ownKeyPair = await CryptoService.getStoredKeyPair(user!.id);
         
-        // Load peer's public key (In production we would fetch from DB, here we compute a mock base or use a seed)
-        // For local simulation, we derive a unique consistent public key for the partner based on their ID
-        const peerKeyPair = await CryptoService.getStoredKeyPair(chat.id);
+        // Load peer's public key from the database if available, otherwise fallback to local mock generation
+        let peerPublicKey: CryptoKey;
+        let publicBase64Log = '';
+        if (chat.publicKey) {
+          peerPublicKey = await CryptoService.importPublicKey(chat.publicKey);
+          publicBase64Log = chat.publicKey;
+        } else {
+          const peerKeyPair = await CryptoService.getStoredKeyPair(chat.id);
+          peerPublicKey = peerKeyPair.publicKey;
+          publicBase64Log = await CryptoService.exportPublicKey(peerKeyPair.publicKey);
+        }
         
-        const derived = await CryptoService.deriveSharedKey(ownKeyPair.privateKey, peerKeyPair.publicKey);
+        const derived = await CryptoService.deriveSharedKey(ownKeyPair.privateKey, peerPublicKey);
         setSharedKey(derived);
         
-        const publicBase64 = await CryptoService.exportPublicKey(peerKeyPair.publicKey);
-        setKeyLogs(`AES-256 derived. Peer Public: ${publicBase64.substring(0, 16)}...`);
+        setKeyLogs(`AES-256 derived. Peer Public: ${publicBase64Log.substring(0, 16)}...`);
       } catch (err) {
         setKeyLogs('Key derivation failed.');
       }
@@ -102,7 +109,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
         // Decrypt if E2EE DM is selected
         if (!chat.isGroup && sharedKey) {
           const decryptedSeed = await Promise.all(loadedMessages.map(async m => {
-            if (m.isE2EE && m.senderId === chat.id) {
+            if (m.isE2EE) {
               const clear = await CryptoService.decryptMessage(m.content, m.encryptionIv, sharedKey);
               return { ...m, content: clear };
             }
@@ -154,7 +161,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
 
     if (isMatchingDM || isMatchingGroup) {
       let content = msg.content;
-      if (msg.isE2EE && sharedKey && msg.senderId !== user?.id) {
+      if (msg.isE2EE && sharedKey) {
         content = await CryptoService.decryptMessage(msg.content, msg.encryptionIv, sharedKey);
       }
       setMessages(prev => [...prev, { ...msg, content }]);

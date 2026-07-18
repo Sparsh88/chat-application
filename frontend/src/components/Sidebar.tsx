@@ -9,8 +9,8 @@ import { AuthContext, SocketContext } from '../App.tsx';
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: 'chats' | 'calendar' | 'analytics' | 'friends' | 'settings') => void;
-  onChatSelect: (chat: { id: string; name: string; isGroup: boolean; avatarUrl?: string } | null) => void;
-  selectedChat: { id: string; name: string; isGroup: boolean; avatarUrl?: string } | null;
+  onChatSelect: (chat: { id: string; name: string; isGroup: boolean; avatarUrl?: string; publicKey?: string } | null) => void;
+  selectedChat: { id: string; name: string; isGroup: boolean; avatarUrl?: string; publicKey?: string } | null;
 }
 
 export default function Sidebar({
@@ -23,7 +23,7 @@ export default function Sidebar({
   const { socket, onlineUsers } = useContext(SocketContext)!;
 
   const [channels, setChannels] = useState<{ id: string; name: string; description?: string }[]>([]);
-  const [friends, setFriends] = useState<{ id: string; username: string; email: string; onlinePresence: string; avatarUrl?: string; verified: boolean }[]>([]);
+  const [friends, setFriends] = useState<{ id: string; username: string; email: string; onlinePresence: string; avatarUrl?: string; verified: boolean; publicKey?: string }[]>([]);
   const [showPresenceDropdown, setShowPresenceDropdown] = useState(false);
   const [showAddChannelModal, setShowAddChannelModal] = useState(false);
   const [newChannelName, setNewChannelName] = useState('');
@@ -258,7 +258,7 @@ export default function Sidebar({
                       key={fr.id} 
                       onClick={() => {
                         setActiveTab('chats');
-                        onChatSelect({ id: fr.id, name: fr.username, isGroup: false, avatarUrl: fr.avatarUrl });
+                        onChatSelect({ id: fr.id, name: fr.username, isGroup: false, avatarUrl: fr.avatarUrl, publicKey: fr.publicKey });
                       }}
                       style={{
                         padding: '8px 12px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: 14,

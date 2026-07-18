@@ -59,7 +59,8 @@ export async function signup(req: AuthenticatedRequest, res: Response) {
         onlinePresence: user.onlinePresence,
         theme: user.theme,
         verified: user.verified,
-        avatarUrl: user.avatarUrl
+        avatarUrl: user.avatarUrl,
+        publicKey: user.publicKey
       }
     });
   } catch (error: any) {
@@ -115,7 +116,8 @@ export async function login(req: AuthenticatedRequest, res: Response) {
         onlinePresence: 'online',
         theme: user.theme,
         verified: user.verified,
-        avatarUrl: user.avatarUrl
+        avatarUrl: user.avatarUrl,
+        publicKey: user.publicKey
       }
     });
   } catch (error: any) {
@@ -126,7 +128,7 @@ export async function login(req: AuthenticatedRequest, res: Response) {
 export async function updateProfile(req: AuthenticatedRequest, res: Response) {
   if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { username, customStatus, onlinePresence, theme, avatarUrl, verified } = req.body;
+  const { username, customStatus, onlinePresence, theme, avatarUrl, verified, publicKey } = req.body;
   try {
     const updated = await prisma.user.update({
       where: { id: req.user.id },
@@ -136,7 +138,8 @@ export async function updateProfile(req: AuthenticatedRequest, res: Response) {
         ...(onlinePresence && { onlinePresence }),
         ...(theme && { theme }),
         ...(avatarUrl && { avatarUrl }),
-        ...(verified !== undefined && req.user.role === 'ADMIN' && { verified })
+        ...(verified !== undefined && req.user.role === 'ADMIN' && { verified }),
+        ...(publicKey && { publicKey })
       }
     });
 
@@ -150,7 +153,8 @@ export async function updateProfile(req: AuthenticatedRequest, res: Response) {
         onlinePresence: updated.onlinePresence,
         theme: updated.theme,
         verified: updated.verified,
-        avatarUrl: updated.avatarUrl
+        avatarUrl: updated.avatarUrl,
+        publicKey: updated.publicKey
       }
     });
   } catch (error: any) {
@@ -175,7 +179,8 @@ export async function getCurrentUser(req: AuthenticatedRequest, res: Response) {
         onlinePresence: user.onlinePresence,
         theme: user.theme,
         verified: user.verified,
-        avatarUrl: user.avatarUrl
+        avatarUrl: user.avatarUrl,
+        publicKey: user.publicKey
       }
     });
   } catch (error: any) {
@@ -257,7 +262,8 @@ export async function checkQRStatus(req: AuthenticatedRequest, res: Response) {
           onlinePresence: 'online',
           theme: user.theme,
           verified: user.verified,
-          avatarUrl: user.avatarUrl
+          avatarUrl: user.avatarUrl,
+          publicKey: user.publicKey
         }
       });
     } catch (e: any) {

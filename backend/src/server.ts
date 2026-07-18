@@ -84,7 +84,8 @@ app.get('/api/users', authenticateJWT, async (req, res) => {
         onlinePresence: true,
         theme: true,
         verified: true,
-        avatarUrl: true
+        avatarUrl: true,
+        publicKey: true
       }
     });
     return res.json(users);

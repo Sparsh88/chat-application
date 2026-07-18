@@ -19,6 +19,7 @@ model User {
   theme          String    @default("default") // custom theme token or hex
   verified       Boolean   @default(false)
   avatarUrl      String?
+  publicKey      String?
   createdAt      DateTime  @default(now())
 }
 

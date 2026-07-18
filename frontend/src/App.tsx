@@ -14,6 +14,7 @@ import ChatArea from './components/ChatArea.tsx';
 import CallWindow from './components/CallWindow.tsx';
 import CalendarView from './components/CalendarView.tsx';
 import Dashboard from './components/Dashboard.tsx';
+import { CryptoService } from './services/CryptoService.ts';
 
 // --- Context Definitions ---
 
@@ -27,6 +28,7 @@ interface User {
   theme: string;
   verified: boolean;
   avatarUrl?: string;
+  publicKey?: string;
 }
 
 interface AuthContextType {
@@ -78,7 +80,7 @@ export default function App() {
 
   // Layout states
   const [activeTab, setActiveTab] = useState<'chats' | 'calendar' | 'analytics' | 'friends' | 'settings'>('chats');
-  const [selectedChat, setSelectedChat] = useState<{ id: string; name: string; isGroup: boolean; avatarUrl?: string } | null>(null);
+  const [selectedChat, setSelectedChat] = useState<{ id: string; name: string; isGroup: boolean; avatarUrl?: string; publicKey?: string } | null>(null);
 
   // QR Login Challenge states
   const [showQRModal, setShowQRModal] = useState(false);
@@ -154,6 +156,37 @@ export default function App() {
       };
     }
   }, [user]);
+
+  // Sync local public key with backend
+  useEffect(() => {
+    if (user && token) {
+      const syncPublicKey = async () => {
+        try {
+          const ownKeyPair = await CryptoService.getStoredKeyPair(user.id);
+          const pubKeyBase64 = await CryptoService.exportPublicKey(ownKeyPair.publicKey);
+          if (user.publicKey !== pubKeyBase64) {
+            const res = await fetch('/api/auth/profile', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ publicKey: pubKeyBase64 })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.user) {
+                updateUser(data.user);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Failed to sync public key:', err);
+        }
+      };
+      syncPublicKey();
+    }
+  }, [user, token]);
 
   const login = (jwtToken: string, userDetails: User) => {
     localStorage.setItem('token', jwtToken);
