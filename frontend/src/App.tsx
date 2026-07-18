@@ -127,7 +127,9 @@ export default function App() {
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
           ? 'http://localhost:5000' 
           : 'https://chat-application-ju4r.onrender.com');
-      const s = io(backendUrl);
+      const s = io(backendUrl, {
+        transports: ['websocket']
+      });
       setSocket(s);
 
       s.emit('register_user', { userId: user.id });
