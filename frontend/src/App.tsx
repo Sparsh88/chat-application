@@ -81,6 +81,7 @@ export default function App() {
   // Layout states
   const [activeTab, setActiveTab] = useState<'chats' | 'calendar' | 'analytics' | 'friends' | 'settings'>('chats');
   const [selectedChat, setSelectedChat] = useState<{ id: string; name: string; isGroup: boolean; avatarUrl?: string; publicKey?: string } | null>(null);
+  const [hasSyncedKey, setHasSyncedKey] = useState(false);
 
   // QR Login Challenge states
   const [showQRModal, setShowQRModal] = useState(false);
@@ -159,7 +160,7 @@ export default function App() {
 
   // Sync local public key with backend
   useEffect(() => {
-    if (user && token) {
+    if (user && token && !hasSyncedKey) {
       const syncPublicKey = async () => {
         try {
           const ownKeyPair = await CryptoService.getStoredKeyPair(user.id);
@@ -175,23 +176,25 @@ export default function App() {
             });
             if (res.ok) {
               const data = await res.json();
-              if (data.user) {
+              if (data.user && data.user.publicKey === pubKeyBase64) {
                 updateUser(data.user);
               }
             }
           }
+          setHasSyncedKey(true);
         } catch (err) {
           console.error('Failed to sync public key:', err);
         }
       };
       syncPublicKey();
     }
-  }, [user, token]);
+  }, [user, token, hasSyncedKey]);
 
   const login = (jwtToken: string, userDetails: User) => {
     localStorage.setItem('token', jwtToken);
     setToken(jwtToken);
     setUser(userDetails);
+    setHasSyncedKey(false);
   };
 
   const logout = () => {
@@ -199,6 +202,7 @@ export default function App() {
     setToken(null);
     setUser(null);
     setSelectedChat(null);
+    setHasSyncedKey(false);
   };
 
   const updateUser = (updated: User) => {

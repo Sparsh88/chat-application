@@ -86,7 +86,7 @@ app.get('/api/users', authenticateJWT, async (req, res) => {
         verified: true,
         avatarUrl: true,
         publicKey: true
-      }
+      } as any
     });
     return res.json(users);
   } catch (err: any) {

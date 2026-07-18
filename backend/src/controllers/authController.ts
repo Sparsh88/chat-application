@@ -140,7 +140,7 @@ export async function updateProfile(req: AuthenticatedRequest, res: Response) {
         ...(avatarUrl && { avatarUrl }),
         ...(verified !== undefined && req.user.role === 'ADMIN' && { verified }),
         ...(publicKey && { publicKey })
-      }
+      } as any
     });
 
     return res.json({
