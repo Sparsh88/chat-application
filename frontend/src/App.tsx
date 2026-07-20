@@ -15,6 +15,7 @@ import CallWindow from './components/CallWindow.tsx';
 import CalendarView from './components/CalendarView.tsx';
 import Dashboard from './components/Dashboard.tsx';
 import { CryptoService } from './services/CryptoService.ts';
+import { getAuthToken, setAuthToken, removeAuthToken } from './utils/auth.ts';
 
 // --- Context Definitions ---
 
@@ -63,7 +64,7 @@ export const CallContext = createContext<CallContextType | null>(null);
 
 export default function App() {
   // Auth state
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(getAuthToken());
   const [user, setUser] = useState<User | null>(null);
   
   // Theme state
@@ -128,12 +129,15 @@ export default function App() {
           ? 'http://localhost:5000' 
           : 'https://chat-application-ju4r.onrender.com');
       const s = io(backendUrl, {
-        transports: ['websocket']
+        transports: ['polling', 'websocket'],
+        reconnection: true,
+        reconnectionAttempts: 10
       });
       setSocket(s);
 
       s.on('connect', () => {
         console.log('🔌 Socket connected successfully! ID:', s.id);
+        s.emit('register_user', { userId: user.id });
       });
 
       s.on('connect_error', (err) => {
@@ -143,8 +147,6 @@ export default function App() {
       s.on('error', (err) => {
         console.error('⚠️ Socket error event received:', err);
       });
-
-      s.emit('register_user', { userId: user.id });
 
       s.on('user_presence_change', ({ userId, presence }) => {
         setOnlineUsers(prev => ({ ...prev, [userId]: presence }));
@@ -205,14 +207,14 @@ export default function App() {
   }, [user, token, hasSyncedKey]);
 
   const login = (jwtToken: string, userDetails: User) => {
-    localStorage.setItem('token', jwtToken);
+    setAuthToken(jwtToken);
     setToken(jwtToken);
     setUser(userDetails);
     setHasSyncedKey(false);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    removeAuthToken();
     setToken(null);
     setUser(null);
     setSelectedChat(null);
@@ -577,7 +579,7 @@ function FriendsTab({ startCall }: { startCall: CallContextType['startCall'] }) 
 
   useEffect(() => {
     fetch('/api/users', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      headers: { Authorization: `Bearer ${getAuthToken()}` }
     })
     .then(r => r.json())
     .then(data => {
@@ -649,7 +651,7 @@ function SettingsTab({
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${getAuthToken()}`
         },
         body: JSON.stringify({
           username,

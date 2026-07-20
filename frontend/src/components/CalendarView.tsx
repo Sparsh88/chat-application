@@ -4,6 +4,7 @@ import {
   ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { CallContext } from '../App.tsx';
+import { getAuthToken } from '../utils/auth.ts';
 
 interface Meeting {
   id: string;
@@ -41,7 +42,7 @@ export default function CalendarView() {
   const fetchMeetings = async () => {
     try {
       const res = await fetch('/api/meetings', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       const data = await res.json();
       if (Array.isArray(data)) {
@@ -91,7 +92,7 @@ export default function CalendarView() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${getAuthToken()}`
         },
         body: JSON.stringify({
           title,
@@ -126,7 +127,7 @@ export default function CalendarView() {
     try {
       const res = await fetch(`/api/meetings/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       if (res.ok) {
         setMeetings(prev => prev.filter(m => m.id !== id));

@@ -7,6 +7,7 @@ import {
   MessageSquare, Users, FolderHeart, Activity,
   Server, Monitor, Globe
 } from 'lucide-react';
+import { getAuthToken } from '../utils/auth.ts';
 
 interface DashboardProps {
   adminMode: boolean;
@@ -74,7 +75,7 @@ export default function Dashboard({ adminMode }: DashboardProps) {
 
   // 1. Fetch dashboard numbers
   useEffect(() => {
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+    const headers = { Authorization: `Bearer ${getAuthToken()}` };
     
     // User data call
     fetch('/api/analytics/user', { headers })

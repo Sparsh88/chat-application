@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext, SocketContext } from '../App.tsx';
+import { getAuthToken } from '../utils/auth.ts';
 
 interface SidebarProps {
   activeTab: string;
@@ -51,7 +52,7 @@ export default function Sidebar({
 
     const fetchSidebarData = async () => {
       try {
-        const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+        const headers = { Authorization: `Bearer ${getAuthToken()}` };
         const [channelsRes, usersRes] = await Promise.all([
           fetch('/api/groups', { headers }),
           fetch('/api/users', { headers })
@@ -93,7 +94,7 @@ export default function Sidebar({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${getAuthToken()}`
         },
         body: JSON.stringify({ name: newChannelName, description: newChannelDesc })
       });

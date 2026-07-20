@@ -6,6 +6,7 @@ import {
 import { motion } from 'framer-motion';
 import { AuthContext, SocketContext } from '../App.tsx';
 import { CryptoService } from '../services/CryptoService.ts';
+import { getAuthToken } from '../utils/auth.ts';
 
 interface ChatAreaProps {
   chat: { id: string; name: string; isGroup: boolean; avatarUrl?: string; publicKey?: string } | null;
@@ -64,7 +65,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
         // Fetch latest peer public key from backend to bypass sidebar caching/race conditions
         let peerPublicKeyStr = chat.publicKey;
         try {
-          const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+          const headers = { Authorization: `Bearer ${getAuthToken()}` };
           const res = await fetch('/api/users', { headers });
           const users = await res.json();
           if (Array.isArray(users)) {
@@ -116,7 +117,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
           : `/api/messages?recipientId=${chat.id}`;
 
         const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
         const dbMessages = await res.json();
         
@@ -327,7 +328,7 @@ export default function ChatArea({ chat }: ChatAreaProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${getAuthToken()}`
         },
         body: JSON.stringify({ chatId: chat?.id, isGroup: chat?.isGroup, ...extraBody })
       });

@@ -127,6 +127,9 @@ export class CryptoService {
       return decoder.decode(decrypted);
     } catch (error) {
       console.error('Decryption failed, key mismatch or corrupted payload:', error);
+      if (ciphertextBase64 && !ciphertextBase64.startsWith('ey') && ciphertextBase64.length < 200 && !/^[A-Za-z0-9+/=]+$/.test(ciphertextBase64)) {
+        return ciphertextBase64;
+      }
       return '🔑 [Decryption Error: Key Mismatch or corrupt payload]';
     }
   }
