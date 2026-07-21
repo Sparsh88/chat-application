@@ -1,6 +1,6 @@
 import { Meeting, Message, User } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const getLocalUsers = (): any[] => {
   try {
@@ -58,9 +58,9 @@ export const apiService = {
         const localUsers = getLocalUsers();
         const user = localUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-        // Default demo account check
-        if (!user && email.toLowerCase() === 'alex.rivera@letsconnect.io') {
-          return {
+        // Default demo accounts check
+        const demoUsers: Record<string, User> = {
+          'alex.rivera@letsconnect.io': {
             id: 'user-001',
             username: 'alex_rivera',
             name: 'Alex Rivera',
@@ -69,7 +69,42 @@ export const apiService = {
             status: 'online',
             role: 'owner',
             createdAt: '2024-01-15T08:00:00.000Z'
-          };
+          },
+          'sarah@letsconnect.io': {
+            id: 'u-sarah',
+            username: 'sarah_chen',
+            name: 'Sarah Chen',
+            email: 'sarah@letsconnect.io',
+            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+            status: 'online',
+            role: 'admin',
+            createdAt: '2024-02-01T08:00:00.000Z'
+          },
+          'marcus@letsconnect.io': {
+            id: 'u-marcus',
+            username: 'marcus_v',
+            name: 'Marcus Vance',
+            email: 'marcus@letsconnect.io',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+            status: 'online',
+            role: 'member',
+            createdAt: '2024-02-10T08:00:00.000Z'
+          },
+          'elena@letsconnect.io': {
+            id: 'u-elena',
+            username: 'elena_r',
+            name: 'Elena Rostova',
+            email: 'elena@letsconnect.io',
+            avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+            status: 'online',
+            role: 'moderator',
+            createdAt: '2024-03-05T08:00:00.000Z'
+          }
+        };
+
+        const normalizedEmail = email.toLowerCase();
+        if (!user && demoUsers[normalizedEmail]) {
+          return demoUsers[normalizedEmail];
         }
 
         if (!user) {

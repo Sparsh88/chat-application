@@ -51,8 +51,8 @@ const auditLogs: any[] = [
   { id: '2', action: 'USER_LOGIN', user: 'Alex Rivera', timestamp: new Date(Date.now() - 1800000).toISOString(), details: '2FA authentication successful via JWT refresh flow.' }
 ];
 
-const fallbackUsers: any[] = [
-  {
+const DEMO_ACCOUNTS: Record<string, any> = {
+  'alex.rivera@letsconnect.io': {
     id: 'user-001',
     email: 'alex.rivera@letsconnect.io',
     name: 'Alex Rivera',
@@ -61,8 +61,40 @@ const fallbackUsers: any[] = [
     status: 'online',
     role: 'owner',
     createdAt: '2024-01-15T08:00:00.000Z'
+  },
+  'sarah@letsconnect.io': {
+    id: 'u-sarah',
+    email: 'sarah@letsconnect.io',
+    name: 'Sarah Chen',
+    username: 'sarah_chen',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    role: 'admin',
+    createdAt: '2024-02-01T08:00:00.000Z'
+  },
+  'marcus@letsconnect.io': {
+    id: 'u-marcus',
+    email: 'marcus@letsconnect.io',
+    name: 'Marcus Vance',
+    username: 'marcus_v',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    role: 'member',
+    createdAt: '2024-02-10T08:00:00.000Z'
+  },
+  'elena@letsconnect.io': {
+    id: 'u-elena',
+    email: 'elena@letsconnect.io',
+    name: 'Elena Rostova',
+    username: 'elena_r',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    role: 'moderator',
+    createdAt: '2024-03-05T08:00:00.000Z'
   }
-];
+};
+
+const fallbackUsers: any[] = Object.values(DEMO_ACCOUNTS);
 
 // --- REST ENDPOINTS ---
 
@@ -124,7 +156,7 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     }
   } else {
     // In-memory fallback
-    const existing = fallbackUsers.find(u => u.email === email);
+    const existing = fallbackUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
       return res.status(400).json({ error: 'Email already registered. Please log in.' });
     }
@@ -151,9 +183,18 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Email is required' });
   }
 
+  const normalizedEmail = email.toLowerCase();
+
   if (getIsConnected()) {
     try {
-      const user = await UserModel.findOne({ email });
+      let user = await UserModel.findOne({ email });
+
+      // Auto-create demo user if missing in DB for seamless quick demo testing
+      if (!user && DEMO_ACCOUNTS[normalizedEmail]) {
+        const demoData = DEMO_ACCOUNTS[normalizedEmail];
+        user = await UserModel.create(demoData);
+      }
+
       if (!user) {
         return res.status(404).json({ error: 'Account not found. Please create an account first.' });
       }
@@ -180,10 +221,16 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     }
   } else {
     // In-memory fallback
-    const user = fallbackUsers.find(u => u.email === email);
+    let user = fallbackUsers.find(u => u.email.toLowerCase() === normalizedEmail);
+    if (!user && DEMO_ACCOUNTS[normalizedEmail]) {
+      user = DEMO_ACCOUNTS[normalizedEmail];
+      fallbackUsers.push(user);
+    }
+
     if (!user) {
       return res.status(404).json({ error: 'Account not found. Please create an account first.' });
     }
+
     if (user.password && password && user.password !== password) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
