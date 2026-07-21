@@ -59,53 +59,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, name?: string, avatar?: string, password?: string) => {
-    try {
-      const userFromBackend = await apiService.login(email, password);
-      const updatedUser: User = {
-        ...currentUser,
-        ...userFromBackend,
-        avatar: avatar || userFromBackend.avatar || currentUser.avatar,
-        status: 'online'
-      };
-      setCurrentUser(updatedUser);
-      localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
-      setIsLoggedIn(true);
-      localStorage.setItem('pulse_logged_in', 'true');
-    } catch (err) {
-      console.warn('Backend login unavailable, fallback to local login:', err);
-      const username = email.split('@')[0].replace(/\./g, '_');
-      const updatedUser: User = {
-        ...currentUser,
-        id: `user-${Date.now()}`,
-        email,
-        name: name || username,
-        username,
-        avatar: avatar || currentUser.avatar,
-        status: 'online'
-      };
-      setCurrentUser(updatedUser);
-      localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
-      setIsLoggedIn(true);
-      localStorage.setItem('pulse_logged_in', 'true');
-    }
+    const userFromBackend = await apiService.login(email, password);
+    const updatedUser: User = {
+      ...currentUser,
+      ...userFromBackend,
+      avatar: avatar || userFromBackend.avatar || currentUser.avatar,
+      status: 'online'
+    };
+    setCurrentUser(updatedUser);
+    localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
+    setIsLoggedIn(true);
+    localStorage.setItem('pulse_logged_in', 'true');
   };
 
   const registerUser = async (email: string, name: string, password?: string) => {
-    try {
-      const userFromBackend = await apiService.register(email, name, password);
-      const updatedUser: User = {
-        ...currentUser,
-        ...userFromBackend,
-        status: 'online'
-      };
-      setCurrentUser(updatedUser);
-      localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
-      setIsLoggedIn(true);
-      localStorage.setItem('pulse_logged_in', 'true');
-    } catch (err) {
-      console.warn('Backend registration failed, falling back:', err);
-      await login(email, name, undefined, password);
-    }
+    const userFromBackend = await apiService.register(email, name, password);
+    const updatedUser: User = {
+      ...currentUser,
+      ...userFromBackend,
+      status: 'online'
+    };
+    setCurrentUser(updatedUser);
+    localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
+    setIsLoggedIn(true);
+    localStorage.setItem('pulse_logged_in', 'true');
   };
 
   const logout = () => {

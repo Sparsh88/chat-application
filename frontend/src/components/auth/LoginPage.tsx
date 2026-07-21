@@ -6,6 +6,8 @@ export const LoginPage: React.FC = () => {
   const { login, registerUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
 
+  const [authError, setAuthError] = useState<string | null>(null);
+
   // Login Form State
   const [loginEmail, setLoginEmail] = useState('alex.rivera@letsconnect.io');
   const [loginPassword, setLoginPassword] = useState('••••••••••••');
@@ -19,22 +21,37 @@ export const LoginPage: React.FC = () => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail.trim()) return;
-    const nameFromEmail = loginEmail.split('@')[0].replace('.', ' ');
-    await login(loginEmail, nameFromEmail, undefined, loginPassword);
+    setAuthError(null);
+    try {
+      const nameFromEmail = loginEmail.split('@')[0].replace('.', ' ');
+      await login(loginEmail, nameFromEmail, undefined, loginPassword);
+    } catch (err: any) {
+      setAuthError(err.message || 'Login failed. Please check your credentials.');
+    }
   };
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signUpEmail.trim() || !signUpName.trim()) return;
     if (signUpPassword && signUpPassword !== confirmPassword) {
-      alert('Passwords do not match!');
+      setAuthError('Passwords do not match!');
       return;
     }
-    await registerUser(signUpEmail, signUpName, signUpPassword);
+    setAuthError(null);
+    try {
+      await registerUser(signUpEmail, signUpName, signUpPassword);
+    } catch (err: any) {
+      setAuthError(err.message || 'Registration failed. Please try again.');
+    }
   };
 
   const handleDemoLogin = async (demoName: string, demoEmail: string, avatar: string) => {
-    await login(demoEmail, demoName, avatar);
+    setAuthError(null);
+    try {
+      await login(demoEmail, demoName, avatar);
+    } catch (err: any) {
+      setAuthError(err.message || 'Demo login failed');
+    }
   };
 
   return (
@@ -63,7 +80,7 @@ export const LoginPage: React.FC = () => {
         {/* Tab Switcher (Sign In vs. Create Account) */}
         <div className="p-1 rounded-xl border flex items-center gap-1" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
           <button
-            onClick={() => setActiveTab('login')}
+            onClick={() => { setActiveTab('login'); setAuthError(null); }}
             className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'login' ? 'bg-accent text-white shadow-md' : 'opacity-60 hover:opacity-100'
             }`}
@@ -71,7 +88,7 @@ export const LoginPage: React.FC = () => {
             Sign In
           </button>
           <button
-            onClick={() => setActiveTab('signup')}
+            onClick={() => { setActiveTab('signup'); setAuthError(null); }}
             className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'signup' ? 'bg-accent text-white shadow-md' : 'opacity-60 hover:opacity-100'
             }`}
@@ -79,6 +96,13 @@ export const LoginPage: React.FC = () => {
             Create Account
           </button>
         </div>
+
+        {/* Auth Error Banner */}
+        {authError && (
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs text-center font-medium">
+            ⚠️ {authError}
+          </div>
+        )}
 
         {activeTab === 'login' ? (
           /* Sign In Form */

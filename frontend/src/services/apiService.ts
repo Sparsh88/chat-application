@@ -34,10 +34,24 @@ export const apiService = {
     return response.json();
   },
 
-  // Messages API
-  async getMessages(targetId: string): Promise<Message[]> {
+  // Users API
+  async getUsers(): Promise<User[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/messages/${targetId}`);
+      const response = await fetch(`${API_BASE_URL}/api/users`);
+      if (!response.ok) return [];
+      return response.json();
+    } catch {
+      return [];
+    }
+  },
+
+  // Messages API
+  async getMessages(targetId: string, currentUserId?: string): Promise<Message[]> {
+    try {
+      const url = currentUserId 
+        ? `${API_BASE_URL}/api/messages/${targetId}?currentUserId=${currentUserId}`
+        : `${API_BASE_URL}/api/messages/${targetId}`;
+      const response = await fetch(url);
       if (!response.ok) return [];
       return response.json();
     } catch {

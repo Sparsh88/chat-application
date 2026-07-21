@@ -91,7 +91,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { socket } = useSocket();
 
   const [channels] = useState<Channel[]>(MOCK_CHANNELS);
-  const [directMessages] = useState<DirectMessage[]>(
+  const [directMessages, setDirectMessages] = useState<DirectMessage[]>(() =>
     MOCK_DM_USERS.map(u => ({ id: `dm-${u.id}`, user: u, unreadCount: 0, lastMessage: 'Hey Alex, check out the new design', lastMessageTimestamp: '10m ago' }))
   );
   const [activeTarget, setActiveTarget] = useState<{ type: 'channel' | 'dm'; id: string }>({ type: 'channel', id: 'ch-general' });
@@ -101,10 +101,41 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [friendsList, setFriendsList] = useState<User[]>(MOCK_DM_USERS);
   const [pendingRequests, setPendingRequests] = useState<User[]>([]);
 
-  // Fetch messages from DB when target changes
+  // Fetch registered users from DB & merge into DM list
+  useEffect(() => {
+    apiService.getUsers().then(dbUsers => {
+      if (dbUsers && dbUsers.length > 0) {
+        setFriendsList(prev => {
+          const existingIds = new Set(prev.map(u => u.id));
+          const newUsers = dbUsers.filter(u => u.id !== currentUser.id && !existingIds.has(u.id));
+          return [...prev, ...newUsers];
+        });
+        setDirectMessages(prev => {
+          const existingUserIds = new Set(prev.map(dm => dm.user.id));
+          const newDms = dbUsers
+            .filter(u => u.id !== currentUser.id && !existingUserIds.has(u.id))
+            .map(u => ({
+              id: `dm-${u.id}`,
+              user: u,
+              unreadCount: 0,
+              lastMessage: 'Say hello!',
+              lastMessageTimestamp: 'Just now'
+            }));
+          return [...prev, ...newDms];
+        });
+      }
+    });
+  }, [currentUser.id]);
+
+  // Fetch messages from DB & join socket room when target changes
   useEffect(() => {
     const targetId = activeTarget.type === 'dm' ? activeTarget.id.replace('dm-', '') : activeTarget.id;
-    apiService.getMessages(targetId).then(dbMessages => {
+
+    if (socket) {
+      socket.emit('join_room', targetId);
+    }
+
+    apiService.getMessages(targetId, currentUser.id).then(dbMessages => {
       if (dbMessages && dbMessages.length > 0) {
         setMessages(dbMessages);
       } else if (activeTarget.id === 'ch-general') {
@@ -113,9 +144,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setMessages([]);
       }
     });
-  }, [activeTarget]);
+  }, [activeTarget, currentUser.id, socket]);
 
-  // Socket Message Listener
+  // Socket Message & User Status Listener
   useEffect(() => {
     if (!socket) return;
 
@@ -124,6 +155,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (prev.some(m => m.id === msg.id)) return prev;
         return [...prev, msg];
       });
+    });
+
+    socket.on('active_users_list', (onlineUsers: User[]) => {
+      if (onlineUsers && onlineUsers.length > 0) {
+        setDirectMessages(prev =>
+          prev.map(dm => {
+            const isOnline = onlineUsers.some(u => u.id === dm.user.id);
+            return isOnline ? { ...dm, user: { ...dm.user, status: 'online' } } : dm;
+          })
+        );
+      }
     });
 
     socket.on('reaction_updated', (data: { messageId: string; emoji: string; userId: string }) => {
@@ -151,6 +193,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       socket.off('receive_message');
+      socket.off('active_users_list');
       socket.off('reaction_updated');
     };
   }, [socket]);

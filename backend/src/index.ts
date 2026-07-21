@@ -51,6 +51,19 @@ const auditLogs: any[] = [
   { id: '2', action: 'USER_LOGIN', user: 'Alex Rivera', timestamp: new Date(Date.now() - 1800000).toISOString(), details: '2FA authentication successful via JWT refresh flow.' }
 ];
 
+const fallbackUsers: any[] = [
+  {
+    id: 'user-001',
+    email: 'alex.rivera@letsconnect.io',
+    name: 'Alex Rivera',
+    username: 'alex_rivera',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    role: 'owner',
+    createdAt: '2024-01-15T08:00:00.000Z'
+  }
+];
+
 // --- REST ENDPOINTS ---
 
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -76,7 +89,7 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     try {
       const existingUser = await UserModel.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ error: 'Email already registered' });
+        return res.status(400).json({ error: 'Email already registered. Please log in.' });
       }
 
       let hashedPassword = undefined;
@@ -111,16 +124,22 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     }
   } else {
     // In-memory fallback
+    const existing = fallbackUsers.find(u => u.email === email);
+    if (existing) {
+      return res.status(400).json({ error: 'Email already registered. Please log in.' });
+    }
     const user = {
       id: userId,
       email,
       name,
       username: generatedUsername,
+      password,
       avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
       status: 'online',
       role: 'member',
       createdAt: new Date().toISOString()
     };
+    fallbackUsers.push(user);
     return res.status(201).json(user);
   }
 });
@@ -136,33 +155,13 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     try {
       const user = await UserModel.findOne({ email });
       if (!user) {
-        // Auto-create for demo login ease
-        const username = email.split('@')[0].replace(/\./g, '_');
-        const name = username.charAt(0).toUpperCase() + username.slice(1);
-        const newUser = await UserModel.create({
-          id: `user-${Date.now()}`,
-          email,
-          name,
-          username,
-          avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
-          status: 'online',
-          role: 'member'
-        });
-        return res.json({
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          username: newUser.username,
-          avatar: newUser.avatar,
-          status: newUser.status,
-          role: newUser.role
-        });
+        return res.status(404).json({ error: 'Account not found. Please create an account first.' });
       }
 
-      if (password && user.password) {
+      if (user.password && password) {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-          return res.status(401).json({ error: 'Invalid password' });
+          return res.status(401).json({ error: 'Invalid email or password' });
         }
       }
 
@@ -181,38 +180,74 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     }
   } else {
     // In-memory fallback
-    const username = email.split('@')[0].replace(/\./g, '_');
-    const name = username.charAt(0).toUpperCase() + username.slice(1);
-    return res.json({
-      id: `user-${Date.now()}`,
-      email,
-      name,
-      username,
-      avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
-      status: 'online',
-      role: 'member'
-    });
+    const user = fallbackUsers.find(u => u.email === email);
+    if (!user) {
+      return res.status(404).json({ error: 'Account not found. Please create an account first.' });
+    }
+    if (user.password && password && user.password !== password) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    return res.json(user);
+  }
+});
+
+// USERS: Get all registered users
+app.get('/api/users', async (_req: Request, res: Response) => {
+  if (getIsConnected()) {
+    try {
+      const users = await UserModel.find({}, '-password');
+      return res.json(users);
+    } catch (err: any) {
+      console.error('Fetch Users Error:', err);
+      return res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  } else {
+    return res.json(Array.from(activeUsers.values()));
   }
 });
 
 // MESSAGES: Get messages by channelId or recipientId
 app.get('/api/messages/:targetId', async (req: Request, res: Response) => {
   const { targetId } = req.params;
+  const currentUserId = req.query.currentUserId as string | undefined;
 
   if (getIsConnected()) {
     try {
-      const messages = await MessageModel.find({
-        $or: [{ channelId: targetId }, { recipientId: targetId }]
-      }).sort({ timestamp: 1 });
+      let filter: any;
+      if (targetId.startsWith('ch-')) {
+        filter = { channelId: targetId };
+      } else if (currentUserId) {
+        filter = {
+          $or: [
+            { channelId: targetId },
+            { senderId: currentUserId, recipientId: targetId },
+            { senderId: targetId, recipientId: currentUserId }
+          ]
+        };
+      } else {
+        filter = {
+          $or: [{ channelId: targetId }, { recipientId: targetId }, { senderId: targetId }]
+        };
+      }
+
+      const messages = await MessageModel.find(filter).sort({ timestamp: 1 });
       return res.json(messages);
     } catch (err: any) {
       console.error('Fetch Messages Error:', err);
       return res.status(500).json({ error: 'Failed to fetch messages' });
     }
   } else {
-    const filtered = fallbackMessages.filter(
-      m => m.channelId === targetId || m.recipientId === targetId
-    );
+    const filtered = fallbackMessages.filter(m => {
+      if (targetId.startsWith('ch-')) {
+        return m.channelId === targetId;
+      }
+      if (currentUserId) {
+        return m.channelId === targetId ||
+          (m.senderId === currentUserId && m.recipientId === targetId) ||
+          (m.senderId === targetId && m.recipientId === currentUserId);
+      }
+      return m.channelId === targetId || m.recipientId === targetId || m.senderId === targetId;
+    });
     return res.json(filtered);
   }
 });
@@ -356,6 +391,9 @@ io.on('connection', (socket: Socket) => {
     activeUsers.set(userData.id, session);
     socket.data.userId = userData.id;
 
+    // Join private room for user-targeted messages
+    socket.join(userData.id);
+
     io.emit('user_status_changed', { userId: userData.id, status: 'online' });
     io.emit('active_users_list', Array.from(activeUsers.values()));
   });
@@ -383,11 +421,17 @@ io.on('connection', (socket: Socket) => {
     if (message.channelId) {
       io.to(message.channelId).emit('receive_message', message);
     } else if (message.recipientId) {
+      // Emit to recipient's private room and sender's private room
+      io.to(message.recipientId).emit('receive_message', message);
+      if (message.senderId && message.senderId !== message.recipientId) {
+        io.to(message.senderId).emit('receive_message', message);
+      }
+
+      // Also directly emit to specific socket ID if registered in activeUsers
       const recipient = activeUsers.get(message.recipientId);
-      if (recipient) {
+      if (recipient && recipient.socketId) {
         io.to(recipient.socketId).emit('receive_message', message);
       }
-      socket.emit('receive_message', message);
     }
   });
 
