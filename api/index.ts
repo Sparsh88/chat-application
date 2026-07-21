@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+// @ts-ignore
 import express, { Request, Response } from 'express';
+// @ts-ignore
 import cors from 'cors';
-import helmet from 'helmet';
+// @ts-ignore
 import bcrypt from 'bcryptjs';
+// @ts-ignore
 import mongoose, { Schema, model } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sparshchauhan:sparsh12@cluster0.00t8w7f.mongodb.net/letsconnect?retryWrites=true&w=majority";
@@ -137,7 +137,6 @@ const DEMO_ACCOUNTS: Record<string, any> = {
 };
 
 const app = express();
-app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json());
 
