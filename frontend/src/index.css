@@ -1,595 +1,144 @@
-/* ==========================================================================
-   NebulaChat CSS Design System & Core Typography
-   ========================================================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  /* Default Theme: Midnight Dark Glass */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
-  
-  --bg-primary: #0a0b10;
-  --bg-secondary: #12141c;
-  --bg-tertiary: #191c26;
-  --bg-glass: rgba(18, 20, 28, 0.7);
-  --border-glass: rgba(255, 255, 255, 0.08);
-  
-  --primary-color: #6366f1; /* Indigo */
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  --accent-color: #f43f5e;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 15px rgba(99, 102, 241, 0.4);
-  
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 30px;
+  --bg-primary: #030712;
+  --bg-secondary: #0b0f19;
+  --bg-card: #111827;
+  --accent: #6366f1;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Light Theme Overrides */
-[data-theme="light"] {
-  --bg-primary: #f1f5f9;
+/* 1. Deep Obsidian Dark (Default) */
+.theme-dark {
+  --bg-primary: #030712;
+  --bg-secondary: #0b0f19;
+  --bg-card: #111827;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 2. Pure OLED Black */
+.theme-oled {
+  --bg-primary: #000000;
+  --bg-secondary: #09090b;
+  --bg-card: #121215;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 3. Cyberpunk Neon */
+.theme-cyberpunk {
+  --bg-primary: #090212;
+  --bg-secondary: #140526;
+  --bg-card: #1f0a38;
+  --text-primary: #fdf2f8;
+  --text-secondary: #f472b6;
+  --border-color: rgba(236, 72, 153, 0.25);
+}
+
+/* 4. Emerald Slate */
+.theme-emerald {
+  --bg-primary: #022c22;
+  --bg-secondary: #064e3b;
+  --bg-card: #047857;
+  --text-primary: #ecfdf5;
+  --text-secondary: #a7f3d0;
+  --border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* 5. Sunset Purple */
+.theme-sunset {
+  --bg-primary: #0f051c;
+  --bg-secondary: #18092c;
+  --bg-card: #2c124a;
+  --text-primary: #fff1f2;
+  --text-secondary: #fecdd3;
+  --border-color: rgba(244, 63, 94, 0.25);
+}
+
+/* 6. Clean Light Mode */
+.theme-light {
+  --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f8fafc;
-  --bg-glass: rgba(255, 255, 255, 0.75);
-  --border-glass: rgba(0, 0, 0, 0.06);
-  
+  --bg-card: #ffffff;
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  
-  --shadow-glow: 0 4px 20px rgba(99, 102, 241, 0.15);
+  --border-color: rgba(0, 0, 0, 0.12);
 }
 
-/* Custom Palette: Emerald Forest */
-[data-palette="emerald"] {
-  --primary-color: #10b981;
-  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --shadow-glow: 0 0 15px rgba(16, 185, 129, 0.4);
-}
-
-/* Custom Palette: Rose Gold */
-[data-palette="rosegold"] {
-  --primary-color: #f43f5e;
-  --primary-gradient: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
-  --shadow-glow: 0 0 15px rgba(244, 63, 94, 0.4);
-}
-
-/* Custom Palette: Ocean Drift */
-[data-palette="ocean"] {
-  --primary-color: #0ea5e9;
-  --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
-  --shadow-glow: 0 0 15px rgba(14, 165, 233, 0.4);
-}
-
-/* Global Reset */
-* {
-  box-sizing: border-box;
+html, body, #root {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', system-ui, sans-serif;
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  -webkit-font-smoothing: antialiased;
+/* Dynamic Brand Accent Color Utilities */
+.text-accent {
+  color: var(--accent) !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+.bg-accent {
+  background-color: var(--accent) !important;
 }
 
-/* Scrollbars styling */
+.border-accent {
+  border-color: var(--accent) !important;
+}
+
+.ring-accent {
+  --tw-ring-color: var(--accent) !important;
+}
+
+/* Automatic override mapping for Tailwind indigo classes to match chosen accent */
+.bg-indigo-600,
+.bg-indigo-500 {
+  background-color: var(--accent) !important;
+}
+
+.text-indigo-400,
+.text-indigo-500,
+.text-indigo-300 {
+  color: var(--accent) !important;
+}
+
+.border-indigo-500,
+.border-indigo-600 {
+  border-color: var(--accent) !important;
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: var(--border-glass);
-  border-radius: 10px;
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: rgba(156, 163, 175, 0.5);
 }
-
-/* Premium Layout Grid */
-.app-container {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  height: 100vh;
-  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
-              var(--bg-primary);
-  position: relative;
-}
-
-/* Responsive Layout */
-@media (max-width: 900px) {
-  .app-container {
-    grid-template-columns: 80px 1fr;
-  }
-  .sidebar-channel-list {
-    display: none !important;
-  }
-}
-
-/* Glassmorphism Panel base */
-.glass-panel {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--shadow-md);
-}
-
-/* Navigation items transitions */
-.nav-item {
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-}
-
-.nav-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 4px;
-  height: 20px;
-  background-color: var(--primary-color);
-  border-radius: 0 4px 4px 0;
-  transition: transform 0.25s ease;
-}
-
-.nav-item.active::before,
-.nav-item:hover::before {
-  transform: translateY(-50%) scaleY(1);
-}
-
-.nav-item.active {
-  color: var(--primary-color);
-  background: rgba(99, 102, 241, 0.08);
-}
-
-/* Custom Buttons styling */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  font-family: var(--font-sans);
-  font-weight: 550;
-  font-size: 14px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  gap: 8px;
-}
-
-.btn-primary {
-  background: var(--primary-gradient);
-  color: #ffffff;
-  box-shadow: var(--shadow-glow);
-}
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
-}
-
-.btn-secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-glass);
-}
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Beautiful Inputs */
-.input-field {
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-glass);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-.input-field:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-}
-
-/* Micro animations */
-@keyframes pulseGlow {
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.8; }
-}
-
-.pulse-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #22c55e;
-  display: inline-block;
-  animation: pulseGlow 2s infinite ease-in-out;
-}
-
-/* Skeleton Loading Wave effect */
-@keyframes skeleton-loading {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
-}
-
-.skeleton {
-  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-glass) 50%, var(--bg-tertiary) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite;
-  border-radius: var(--radius-sm);
-}
-
-/* Message bubbles styling */
-.msg-bubble {
-  max-width: 70%;
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-  position: relative;
-  line-height: 1.5;
-  font-size: 14px;
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.msg-incoming {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-top-left-radius: 2px;
-  align-self: flex-start;
-}
-
-.msg-outgoing {
-  background: var(--primary-gradient);
-  color: #ffffff;
-  border-top-right-radius: 2px;
-  align-self: flex-end;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Empty states placeholder graphics */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.empty-state svg {
-  margin-bottom: 20px;
-  opacity: 0.4;
-  color: var(--primary-color);
-}
-
-/* ==========================================================================
-   NebulaChat Premium UI Additions
-   ========================================================================== */
-
-/* Fullscreen Auth Page with Cosmic Animated Gradient Backdrop */
-@keyframes nebulaBackground {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.auth-fullscreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  background: linear-gradient(-45deg, #05060b, #0b0d19, #141125, #08111e);
-  background-size: 400% 400%;
-  animation: nebulaBackground 15s ease infinite;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Radial Glows behind the login card */
-.auth-fullscreen::before {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-  top: 15%;
-  left: 20%;
-  pointer-events: none;
-  filter: blur(40px);
-}
-
-.auth-fullscreen::after {
-  content: '';
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, transparent 70%);
-  bottom: 10%;
-  right: 15%;
-  pointer-events: none;
-  filter: blur(60px);
-}
-
-/* High-End Glassmorphic Login Card */
-.auth-card {
-  width: 100%;
-  max-width: 440px;
-  padding: 40px;
-  border-radius: var(--radius-lg);
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  background: rgba(18, 20, 28, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
-              0 0 40px rgba(99, 102, 241, 0.1);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-}
-
-.auth-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 
-              0 0 50px rgba(99, 102, 241, 0.18);
-}
-
-/* Auth header layout and crown badge */
-.auth-header {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.crown-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
-}
-
-.auth-card:hover .crown-badge {
-  transform: rotate(12deg) scale(1.1);
-  background: rgba(99, 102, 241, 0.15);
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
-}
-
-.auth-header h2 {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.auth-header p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Authentication input form alignments */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-}
-
-/* Auth Alerts error notification banner */
-.auth-alert {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--radius-md);
-  color: #fca5a5;
-  font-size: 13px;
-}
-
-/* Beautiful separators with glowing texts */
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin: 8px 0;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--border-glass);
-}
-
-.divider:not(:empty)::before {
-  margin-right: .5em;
-}
-
-.divider:not(:empty)::after {
-  margin-left: .5em;
-}
-
-/* Register/Login switch triggers */
-.auth-toggle {
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 8px;
-}
-
-.auth-toggle span {
-  color: var(--primary-color);
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.auth-toggle span:hover {
-  text-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
-  text-decoration: underline;
-}
-
-/* QR Code authorization modal overlays */
-.qr-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 6, 11, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.qr-modal-body {
-  width: 400px;
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  background: rgba(18, 20, 28, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 50px rgba(99, 102, 241, 0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 20px;
-}
-
-.qr-modal-body h3 {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.qr-modal-body p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* QR Code box and active glow rings */
-.qr-box {
-  width: 232px;
-  height: 232px;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: #ffffff;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.qr-box img {
-  width: 200px;
-  height: 200px;
-  display: block;
-}
-
-.qr-status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.04);
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-glass);
-}
-
-/* Glowing active tab styles and layouts */
-.nav-item.active {
-  color: var(--text-primary);
-  background: rgba(99, 102, 241, 0.14) !important;
-  box-shadow: inset 0 0 10px rgba(99, 102, 241, 0.2);
-  border-radius: var(--radius-sm);
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-sm);
-}
-
-/* Micro bounce effects for cards */
-.friend-card {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
-}
-.friend-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow), 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-

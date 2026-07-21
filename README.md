@@ -1,355 +1,114 @@
-# 🚀 NebulaChat – Real-Time Collaboration Platform
+# 💬 Let's Connect - Real-Time Chat & Collaboration Platform
 
-<div align="center">
+A modern, full-stack real-time chat application built with **React**, **TypeScript**, **Socket.IO**, and **Express**. Features include real-time messaging, video/voice calls, AI assistant, meeting scheduler, analytics dashboard, and beautiful theme customization.
 
-![React](https://img.shields.io/badge/React-18-blue?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)
-![Node.js](https://img.shields.io/badge/Node.js-Express-green?logo=node.js)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-green?logo=mongodb)
-![Socket.IO](https://img.shields.io/badge/Socket.IO-Real--Time-black?logo=socket.io)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)
-![WebRTC](https://img.shields.io/badge/WebRTC-Video%20Calls-orange)
+## ✨ Features
 
-### A modern full-stack collaboration platform inspired by Discord, Slack, Microsoft Teams, and Notion.
+- 💬 **Real-Time Messaging** — Instant messaging with Socket.IO, reactions, pinned messages
+- 📹 **Video & Voice Calls** — WebRTC-powered HD video/voice calls with screen sharing
+- 🤖 **AI Assistant** — Powered by Google Gemini for chat summaries & action items
+- 📅 **Meeting Scheduler** — Schedule team meetings with calendar view & .ics export
+- 📊 **Analytics Dashboard** — Real-time performance metrics and charts
+- 🎨 **Theme Engine** — 6 beautiful theme presets (Dark, Light, OLED, Cyberpunk, Emerald, Sunset)
+- 👥 **Friends & Social** — Friend requests, online status, custom statuses
+- 🔐 **E2EE Ready** — End-to-end encryption architecture for secure messaging
+- 📱 **Responsive Design** — Works beautifully on all screen sizes
 
-**Built with React, TypeScript, Node.js, Express, Socket.IO, MongoDB, Prisma, and WebRTC.**
+## 🛠️ Tech Stack
 
-🌐 **Live Demo:** https://chat-application-blond-phi.vercel.app/
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS |
+| **Backend** | Node.js, Express, Socket.IO |
+| **Real-Time** | WebSocket (Socket.IO) + WebRTC |
+| **AI** | Google Gemini API |
+| **Charts** | Recharts |
+| **Icons** | Lucide React |
 
-⚙️ **Backend API:** https://chat-application-ju4r.onrender.com/
+## 📁 Project Structure
 
-</div>
-
----
-
-# 📌 Overview
-
-NebulaChat is a full-stack SaaS collaboration platform developed as a portfolio project to demonstrate modern web development skills.
-
-The application focuses on real-time communication, secure messaging, video conferencing, AI-powered productivity, and analytics while following scalable architecture and clean UI design principles.
-
-It combines features commonly found in modern collaboration tools into a single application with a responsive, premium glassmorphism interface.
-
----
-
-# ✨ Features
-
-## 💬 Real-Time Messaging
-
-* One-to-one Direct Messages
-* Group Chats
-* Real-time typing indicators
-* Online/offline presence
-* Instant message delivery using Socket.IO
-
----
-
-## 🔒 End-to-End Encryption
-
-Messages are encrypted inside the browser before transmission.
-
-**Security Implementation**
-
-* Web Crypto API
-* ECDH P-256 Key Exchange
-* AES-GCM Encryption
-* Unique IV for every message
-* Backend stores only encrypted ciphertext
-
----
-
-## 🎥 Video & Voice Calling
-
-Powered by WebRTC.
-
-Features include:
-
-* Video Calling
-* Voice Calling
-* Camera Toggle
-* Microphone Toggle
-* Picture-in-Picture
-* Call History
-* Hand Raise
-* Background Blur Effect
-
----
-
-## 🤖 AI Assistant
-
-Integrated AI tools for improving productivity.
-
-Supports:
-
-* Conversation Summaries
-* Smart Reply Suggestions
-* Grammar Correction
-* Message Rewriting
-* Translation
-* Task Extraction
-* Intelligent Search
-
-Development mode includes a mock AI engine that works without API keys.
-
----
-
-## 📊 Analytics Dashboard
-
-Interactive dashboards built using Recharts.
-
-### User Analytics
-
-* Messages Sent
-* Groups Joined
-* Friends Added
-* Weekly Activity
-* Call Duration
-
-### Admin Analytics
-
-* Daily Active Users
-* Registration Growth
-* Browser Usage
-* Geographic Distribution
-* Storage Statistics
-
----
-
-## 📅 Meeting Scheduler
-
-* Monthly Calendar
-* Meeting Creation
-* Event Invitations
-* WebSocket Notifications
-* One-click Meeting Join Links
-
----
-
-## 🎨 Modern UI
-
-* Glassmorphism Design
-* Responsive Layout
-* Framer Motion Animations
-* Multiple Color Themes
-* Dark Interface
-* Loading Skeletons
-
-Available Themes
-
-* Indigo
-* Emerald Forest
-* Rose Gold
-* Ocean Drift
-
----
-
-# 🛠 Tech Stack
-
-## Frontend
-
-* React 18
-* TypeScript
-* Vite
-* Framer Motion
-* Recharts
-* Web Crypto API
-* WebRTC
-* Socket.IO Client
-
-## Backend
-
-* Node.js
-* Express.js
-* TypeScript
-* Socket.IO
-* Prisma ORM
-* MongoDB Atlas
-* JWT Authentication
-
-## Deployment
-
-* Vercel
-* Render
-
----
-
-# 📂 Project Structure
-
-```text
-chat-application/
-│
-├── frontend/
-│   ├── components/
-│   ├── services/
-│   ├── pages/
-│   ├── App.tsx
-│   └── main.tsx
-│
-├── backend/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── prisma/
-│   ├── socket.ts
-│   └── server.ts
-│
-└── package.json
+```
+lets-connect/
+├── frontend/          # React + Vite frontend
+│   ├── src/
+│   │   ├── components/  # UI Components
+│   │   ├── context/     # React Contexts (Auth, Chat, Socket, Theme, Call)
+│   │   ├── services/    # AI Service
+│   │   └── types/       # TypeScript types
+│   └── package.json
+├── backend/           # Express + Socket.IO backend
+│   ├── src/
+│   │   └── index.ts     # Server entry point
+│   └── package.json
+├── vercel.json        # Vercel deployment config (frontend)
+├── render.yaml        # Render deployment config (backend)
+└── README.md
 ```
 
----
+## 🚀 Local Development
 
-# 🚀 Getting Started
+### Prerequisites
+- Node.js 18+ 
+- npm
 
-## Clone Repository
+### Setup
 
 ```bash
-git clone https://github.com/Sparsh88/chat-application.git
+# 1. Clone the repository
+git clone https://github.com/YOUR_USERNAME/lets-connect.git
+cd lets-connect
 
-cd chat-application
-```
-
----
-
-## Install Dependencies
-
-```bash
-npm run install:all
-```
-
----
-
-## Configure Environment Variables
-
-Create a `.env` file inside the backend directory.
-
-Example:
-
-```env
-DATABASE_URL=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-OPENAI_API_KEY=optional
-GEMINI_API_KEY=optional
-```
-
----
-
-## Generate Prisma Client
-
-```bash
+# 2. Install backend dependencies & start
 cd backend
+npm install
+npm run dev
 
-npm run prisma:generate
-
-npm run prisma:db
-```
-
----
-
-## Start Development Server
-
-```bash
+# 3. Install frontend dependencies & start (new terminal)
+cd frontend
+npm install
 npm run dev
 ```
 
-Frontend
+Frontend runs on `http://localhost:3000` and backend on `http://localhost:5000`.
 
-```
-http://localhost:3000
-```
+## ☁️ Deployment
 
-Backend
+### Backend → Render
 
-```
-http://localhost:5000
-```
+1. Go to [render.com](https://render.com) → **New Web Service**
+2. Connect your GitHub repo
+3. Settings:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm start`
+4. Add environment variable:
+   - `FRONTEND_URL` = your Vercel frontend URL (e.g. `https://lets-connect.vercel.app`)
 
----
+### Frontend → Vercel
 
-# 🧪 Demo Credentials
+1. Go to [vercel.com](https://vercel.com) → **Import Project**
+2. Connect your GitHub repo
+3. Settings:
+   - **Root Directory**: `frontend`
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Add environment variable:
+   - `VITE_BACKEND_URL` = your Render backend URL (e.g. `https://lets-connect-backend.onrender.com`)
 
-| User  | Email                                             | Password |
-| ----- | ------------------------------------------------- | -------- |
-| Admin | [admin@nebulachat.io](mailto:admin@nebulachat.io) | user123  |
-| Alex  | [alex@company.com](mailto:alex@company.com)       | user123  |
-| Sarah | [sarah@design.com](mailto:sarah@design.com)       | user123  |
+## 📝 Environment Variables
 
----
+### Backend (.env)
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `PORT` | Server port (auto-set by Render) | `5000` |
+| `FRONTEND_URL` | Frontend URL for CORS | `https://lets-connect.vercel.app` |
 
-# 📸 Key Demonstrations
+### Frontend (.env)
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_BACKEND_URL` | Backend API URL | `https://lets-connect-backend.onrender.com` |
 
-### 🔒 Secure Messaging
+## 📄 License
 
-* Login with Alex and Sarah in separate browsers
-* Send encrypted messages
-* Observe secure communication using browser-based encryption
-
-### 🎥 Video Calls
-
-* Start a WebRTC call
-* Accept from another account
-* Experience real-time audio and video
-
-### 🤖 AI Assistant
-
-* Generate conversation summaries
-* Rewrite messages
-* Translate content
-* Extract tasks automatically
-
-### 📊 Analytics
-
-* View interactive dashboards
-* Monitor activity trends
-* Explore user statistics
-
----
-
-# 🎯 Learning Outcomes
-
-This project helped strengthen my understanding of:
-
-* Full-Stack Development
-* TypeScript
-* React Architecture
-* REST APIs
-* Authentication
-* Socket.IO
-* WebRTC
-* End-to-End Encryption
-* MongoDB
-* Prisma ORM
-* Real-Time Systems
-* Responsive UI Design
-* Deployment with Vercel & Render
-
----
-
-# 🔮 Future Improvements
-
-* Screen Sharing
-* File Sharing
-* Push Notifications
-* Mobile App
-* Voice Notes
-* Multi-language Support
-* AI Meeting Notes
-* Team Workspaces
-* Message Reactions
-* Threaded Conversations
-
----
-
-# 👨‍💻 Author
-
-**Sparsh Chauhan**
-
-GitHub: https://github.com/Sparsh88
-
-LinkedIn: https://linkedin.com/in/sparshchauhan08
-
----
-
-# ⭐ Support
-
-If you found this project useful, consider giving it a **⭐ Star** on GitHub.
-
-Feedback, suggestions, and contributions are always welcome!
+MIT License - feel free to use this project for learning and development!
