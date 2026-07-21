@@ -19,7 +19,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || '*';
 
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -27,7 +27,7 @@ connectDB();
 
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: '*',
     methods: ['GET', 'POST']
   }
 });
