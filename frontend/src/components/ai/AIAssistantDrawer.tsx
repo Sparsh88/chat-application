@@ -52,7 +52,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ onClose })
 
   return (
     <aside
-      className="w-80 border-l flex flex-col z-30 shadow-2xl select-none transition-colors duration-300"
+      className="fixed md:static inset-y-0 right-0 z-40 md:z-30 w-full sm:w-80 md:w-80 border-l flex flex-col shadow-2xl select-none transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
     >
       {/* Drawer Header */}

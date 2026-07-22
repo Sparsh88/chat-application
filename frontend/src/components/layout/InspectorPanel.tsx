@@ -19,7 +19,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({ onClose, onOpenS
 
   return (
     <aside
-      className="w-72 border-l flex flex-col z-20 select-none transition-colors duration-300"
+      className="fixed md:static inset-y-0 right-0 z-40 md:z-20 w-full sm:w-72 md:w-72 border-l flex flex-col shadow-2xl select-none transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
     >
       {/* Header */}

@@ -13,6 +13,9 @@ import { FriendsTab } from '../social/FriendsTab';
 import { SettingsModal } from '../settings/SettingsModal';
 import { Meeting } from '../../types';
 import { apiService } from '../../services/apiService';
+import { useChat } from '../../context/ChatContext';
+import { CircleDot, Sparkles, BarChart3, Calendar, Users, Settings } from 'lucide-react';
+
 
 const INITIAL_MEETINGS: Meeting[] = [
   {
@@ -42,11 +45,18 @@ const INITIAL_MEETINGS: Meeting[] = [
 ];
 
 export const AppLayout: React.FC = () => {
+  const { activeTarget } = useChat();
   const [activeView, setActiveView] = useState<'chat' | 'analytics' | 'meetings' | 'friends' | 'settings'>('chat');
   const [isAIOpen, setIsAIOpen] = useState<boolean>(false);
   const [isInspectorOpen, setIsInspectorOpen] = useState<boolean>(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [meetings, setMeetings] = useState<Meeting[]>(INITIAL_MEETINGS);
+
+  // Close mobile sidebar on target or view change
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [activeTarget, activeView]);
 
   // Fetch persistent meetings on mount
   useEffect(() => {
@@ -72,29 +82,68 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div
-      className="h-screen w-screen flex overflow-hidden font-sans transition-colors duration-300"
+      className="h-screen w-screen flex flex-col md:flex-row overflow-hidden font-sans transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* 1. Server Navigation Bar (Discord style) */}
-      <ServerBar
-        activeView={activeView}
-        setActiveView={setActiveView}
-        toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
-        isAIOpen={isAIOpen}
-      />
+      <div className="hidden md:flex h-full shrink-0">
+        <ServerBar
+          activeView={activeView}
+          setActiveView={setActiveView}
+          toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
+          isAIOpen={isAIOpen}
+        />
+      </div>
+
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-45 md:hidden transition-opacity duration-300 animate-fade-in"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Mobile Drawer Container */}
+      <div
+        className={`fixed top-0 bottom-0 left-0 z-50 flex shadow-2xl transition-transform duration-300 md:hidden ${
+          isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{ width: '328px' }}
+      >
+        <ServerBar
+          activeView={activeView}
+          setActiveView={setActiveView}
+          toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
+          isAIOpen={isAIOpen}
+        />
+        {activeView === 'chat' ? (
+          <div className="w-64 h-full">
+            <ChannelSidebar />
+          </div>
+        ) : (
+          <div className="w-64 h-full flex flex-col items-center justify-center p-6 text-center select-none" style={{ backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)' }}>
+            <span className="text-2xl mb-2">⚡</span>
+            <h3 className="font-bold text-xs">Let's Connect</h3>
+            <p className="text-[10px] opacity-60 mt-1">Open the Chat tab to view workspace channels & direct messages.</p>
+          </div>
+        )}
+      </div>
 
       {/* Main Container Area */}
-      <div className="flex-1 flex min-w-0 h-full relative">
+      <div className="flex-1 flex min-w-0 h-full relative min-h-0">
         {activeView === 'chat' && (
           <>
             {/* 2. Workspace Channels Sidebar (Slack style) */}
-            <ChannelSidebar />
+            <div className="hidden md:flex h-full shrink-0">
+              <ChannelSidebar />
+            </div>
 
             {/* Central Workspace Window */}
             <div className="flex-1 flex flex-col min-w-0 h-full">
               <AppHeader
                 toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
                 toggleInspector={() => setIsInspectorOpen(!isInspectorOpen)}
+                onMenuClick={() => setIsMobileSidebarOpen(true)}
               />
               <ChatArea />
             </div>
@@ -124,6 +173,78 @@ export const AppLayout: React.FC = () => {
         {isAIOpen && (
           <AIAssistantDrawer onClose={() => setIsAIOpen(false)} />
         )}
+      </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div
+        className="md:hidden h-16 border-t flex items-center justify-around z-30 select-none transition-colors duration-300 shrink-0"
+        style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+      >
+        {/* Chat Tab */}
+        <button
+          onClick={() => { setActiveView('chat'); }}
+          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
+            activeView === 'chat' ? 'text-accent font-bold' : 'opacity-60 hover:opacity-100'
+          }`}
+        >
+          <CircleDot className="w-5 h-5" />
+          <span className="text-[10px]">Chat</span>
+        </button>
+
+        {/* AI Assistant Tab */}
+        <button
+          onClick={() => setIsAIOpen(!isAIOpen)}
+          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
+            isAIOpen ? 'text-purple-400 font-bold' : 'opacity-60 hover:opacity-100'
+          }`}
+        >
+          <Sparkles className="w-5 h-5" />
+          <span className="text-[10px]">AI Assistant</span>
+        </button>
+
+        {/* Analytics Tab */}
+        <button
+          onClick={() => { setActiveView('analytics'); }}
+          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
+            activeView === 'analytics' ? 'text-accent font-bold' : 'opacity-60 hover:opacity-100'
+          }`}
+        >
+          <BarChart3 className="w-5 h-5" />
+          <span className="text-[10px]">Metrics</span>
+        </button>
+
+        {/* Calendar Tab */}
+        <button
+          onClick={() => { setActiveView('meetings'); }}
+          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
+            activeView === 'meetings' ? 'text-accent font-bold' : 'opacity-60 hover:opacity-100'
+          }`}
+        >
+          <Calendar className="w-5 h-5" />
+          <span className="text-[10px]">Calendar</span>
+        </button>
+
+        {/* Friends Tab */}
+        <button
+          onClick={() => { setActiveView('friends'); }}
+          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
+            activeView === 'friends' ? 'text-accent font-bold' : 'opacity-60 hover:opacity-100'
+          }`}
+        >
+          <Users className="w-5 h-5" />
+          <span className="text-[10px]">Friends</span>
+        </button>
+
+        {/* Settings Tab */}
+        <button
+          onClick={() => { setActiveView('settings'); }}
+          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all ${
+            activeView === 'settings' ? 'text-accent font-bold' : 'opacity-60 hover:opacity-100'
+          }`}
+        >
+          <Settings className="w-5 h-5" />
+          <span className="text-[10px]">Settings</span>
+        </button>
       </div>
 
       {/* WebRTC Video & Voice Call Overlay */}

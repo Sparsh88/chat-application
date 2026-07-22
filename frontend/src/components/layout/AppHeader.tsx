@@ -1,14 +1,15 @@
 import React from 'react';
-import { Phone, Video, ShieldCheck, MoreVertical, Hash } from 'lucide-react';
+import { Phone, Video, ShieldCheck, MoreVertical, Hash, Menu } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useCall } from '../../context/CallContext';
 
 interface AppHeaderProps {
   toggleAIAssistant: () => void;
   toggleInspector: () => void;
+  onMenuClick?: () => void;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ toggleInspector }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ toggleAIAssistant, toggleInspector, onMenuClick }) => {
   const { activeTarget, channels, directMessages, isE2EEEnabled } = useChat();
   const { startCall } = useCall();
 
@@ -22,6 +23,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ toggleInspector }) => {
     >
       {/* Title & Topic */}
       <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="p-1.5 opacity-80 hover:opacity-100 hover:bg-black/10 rounded-xl md:hidden transition-all text-accent mr-1 animate-fade-in"
+            title="Open Channels List"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         {activeTarget.type === 'channel' ? (
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-accent" />
