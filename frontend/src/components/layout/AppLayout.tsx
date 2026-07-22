@@ -58,6 +58,11 @@ export const AppLayout: React.FC = () => {
     setIsMobileSidebarOpen(false);
   }, [activeTarget, activeView]);
 
+  // Switch to chat view when activeTarget changes
+  useEffect(() => {
+    setActiveView('chat');
+  }, [activeTarget]);
+
   // Fetch persistent meetings on mount
   useEffect(() => {
     apiService.getMeetings().then(dbMeetings => {
@@ -116,17 +121,9 @@ export const AppLayout: React.FC = () => {
           toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
           isAIOpen={isAIOpen}
         />
-        {activeView === 'chat' ? (
-          <div className="w-64 h-full">
-            <ChannelSidebar />
-          </div>
-        ) : (
-          <div className="w-64 h-full flex flex-col items-center justify-center p-6 text-center select-none" style={{ backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)' }}>
-            <span className="text-2xl mb-2">⚡</span>
-            <h3 className="font-bold text-xs">Let's Connect</h3>
-            <p className="text-[10px] opacity-60 mt-1">Open the Chat tab to view workspace channels & direct messages.</p>
-          </div>
-        )}
+        <div className="w-64 h-full">
+          <ChannelSidebar />
+        </div>
       </div>
 
       {/* Main Container Area */}
@@ -141,26 +138,25 @@ export const AppLayout: React.FC = () => {
 
         {/* Global Content Area */}
         <div className="flex-1 flex min-w-0 min-h-0 w-full relative">
-          {activeView === 'chat' && (
-            <>
-              {/* 2. Workspace Channels Sidebar (Slack style) */}
-              <div className="hidden md:flex h-full shrink-0">
-                <ChannelSidebar />
-              </div>
-              <ChatArea />
-            </>
-          )}
+          {/* 2. Workspace Channels Sidebar (Slack style) */}
+          <div className="hidden md:flex h-full shrink-0">
+            <ChannelSidebar />
+          </div>
 
-          {activeView === 'analytics' && <AnalyticsDashboard />}
-          {activeView === 'meetings' && (
-            <CalendarView
-              meetings={meetings}
-              onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
-              onDeleteMeeting={handleDeleteMeeting}
-            />
-          )}
-          {activeView === 'friends' && <FriendsTab />}
-          {activeView === 'settings' && <SettingsModal />}
+          {/* Active View Panel */}
+          <div className="flex-1 flex flex-col min-w-0 h-full relative min-h-0">
+            {activeView === 'chat' && <ChatArea />}
+            {activeView === 'analytics' && <AnalyticsDashboard />}
+            {activeView === 'meetings' && (
+              <CalendarView
+                meetings={meetings}
+                onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
+                onDeleteMeeting={handleDeleteMeeting}
+              />
+            )}
+            {activeView === 'friends' && <FriendsTab />}
+            {activeView === 'settings' && <SettingsModal />}
+          </div>
 
           {/* 3. Notion-style Inspector Panel */}
           {isInspectorOpen && activeView === 'chat' && (
