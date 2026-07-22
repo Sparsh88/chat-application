@@ -130,49 +130,51 @@ export const AppLayout: React.FC = () => {
       </div>
 
       {/* Main Container Area */}
-      <div className="flex-1 flex min-w-0 h-full relative min-h-0">
-        {activeView === 'chat' && (
-          <>
-            {/* 2. Workspace Channels Sidebar (Slack style) */}
-            <div className="hidden md:flex h-full shrink-0">
-              <ChannelSidebar />
-            </div>
+      <div className="flex-1 flex flex-col min-w-0 h-full relative min-h-0">
+        {/* Global AppHeader */}
+        <AppHeader
+          activeView={activeView}
+          toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
+          toggleInspector={() => setIsInspectorOpen(!isInspectorOpen)}
+          onMenuClick={() => setIsMobileSidebarOpen(true)}
+        />
 
-            {/* Central Workspace Window */}
-            <div className="flex-1 flex flex-col min-w-0 h-full">
-              <AppHeader
-                toggleAIAssistant={() => setIsAIOpen(!isAIOpen)}
-                toggleInspector={() => setIsInspectorOpen(!isInspectorOpen)}
-                onMenuClick={() => setIsMobileSidebarOpen(true)}
-              />
+        {/* Global Content Area */}
+        <div className="flex-1 flex min-w-0 min-h-0 w-full relative">
+          {activeView === 'chat' && (
+            <>
+              {/* 2. Workspace Channels Sidebar (Slack style) */}
+              <div className="hidden md:flex h-full shrink-0">
+                <ChannelSidebar />
+              </div>
               <ChatArea />
-            </div>
+            </>
+          )}
 
-            {/* 3. Notion-style Inspector Panel */}
-            {isInspectorOpen && (
-              <InspectorPanel
-                onClose={() => setIsInspectorOpen(false)}
-                onOpenScheduler={() => setIsScheduleModalOpen(true)}
-              />
-            )}
-          </>
-        )}
+          {activeView === 'analytics' && <AnalyticsDashboard />}
+          {activeView === 'meetings' && (
+            <CalendarView
+              meetings={meetings}
+              onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
+              onDeleteMeeting={handleDeleteMeeting}
+            />
+          )}
+          {activeView === 'friends' && <FriendsTab />}
+          {activeView === 'settings' && <SettingsModal />}
 
-        {activeView === 'analytics' && <AnalyticsDashboard />}
-        {activeView === 'meetings' && (
-          <CalendarView
-            meetings={meetings}
-            onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
-            onDeleteMeeting={handleDeleteMeeting}
-          />
-        )}
-        {activeView === 'friends' && <FriendsTab />}
-        {activeView === 'settings' && <SettingsModal />}
+          {/* 3. Notion-style Inspector Panel */}
+          {isInspectorOpen && activeView === 'chat' && (
+            <InspectorPanel
+              onClose={() => setIsInspectorOpen(false)}
+              onOpenScheduler={() => setIsScheduleModalOpen(true)}
+            />
+          )}
 
-        {/* 4. AI Assistant Drawer (Gemini) */}
-        {isAIOpen && (
-          <AIAssistantDrawer onClose={() => setIsAIOpen(false)} />
-        )}
+          {/* 4. AI Assistant Drawer (Gemini) */}
+          {isAIOpen && (
+            <AIAssistantDrawer onClose={() => setIsAIOpen(false)} />
+          )}
+        </div>
       </div>
 
       {/* Mobile Bottom Navigation Bar */}

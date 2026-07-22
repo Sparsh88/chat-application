@@ -14,24 +14,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ meetings, onOpenSche
 
   return (
     <div
-      className="flex-1 overflow-y-auto p-6 space-y-6 select-none transition-colors duration-300"
+      className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 select-none transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Header Bar */}
       <div
-        className="flex items-center justify-between p-5 rounded-2xl border backdrop-blur-md shadow-lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border backdrop-blur-md shadow-lg"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
       >
         <div>
-          <h1 className="text-xl font-extrabold tracking-tight flex items-center gap-2">
-            <CalendarIcon className="w-6 h-6 text-accent" /> Team Meeting Calendar & Sync
+          <h1 className="text-base sm:text-xl font-extrabold tracking-tight flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-accent" /> Team Meeting Calendar & Sync
           </h1>
-          <p className="text-xs opacity-60 mt-1">Scheduled video calls, calendar invites, and instant meeting room links.</p>
+          <p className="text-xs opacity-60 mt-1 hidden sm:block">Scheduled video calls, calendar invites, and instant meeting room links.</p>
         </div>
 
         <button
           onClick={onOpenScheduleModal}
-          className="px-4 py-2 bg-accent text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition-transform hover:scale-[1.02]"
+          className="px-4 py-2 bg-accent text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition-transform hover:scale-[1.02] self-start sm:self-auto shrink-0"
         >
           <Plus className="w-4 h-4" /> Schedule New Meeting
         </button>

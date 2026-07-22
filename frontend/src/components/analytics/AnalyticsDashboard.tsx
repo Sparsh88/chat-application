@@ -31,19 +31,19 @@ export const AnalyticsDashboard: React.FC = () => {
 
   return (
     <div
-      className="flex-1 overflow-y-auto p-6 space-y-6 select-none transition-colors duration-300"
+      className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 select-none transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Top Banner & Mode Switcher */}
       <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border shadow-lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border shadow-lg"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
       >
         <div>
-          <h1 className="text-xl font-extrabold tracking-tight flex items-center gap-2">
-            <Activity className="w-6 h-6 text-indigo-400" /> Analytics & Performance Insights
+          <h1 className="text-base sm:text-xl font-extrabold tracking-tight flex items-center gap-2">
+            <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" /> Analytics & Performance Insights
           </h1>
-          <p className="text-xs opacity-60 mt-1">Real-time metrics, message throughput, WebRTC bandwidth, and user demographics.</p>
+          <p className="text-xs opacity-60 mt-1 hidden sm:block">Real-time metrics, message throughput, WebRTC bandwidth, and user demographics.</p>
         </div>
 
         {/* View Toggle Button */}

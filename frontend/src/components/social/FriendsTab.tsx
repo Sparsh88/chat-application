@@ -19,30 +19,30 @@ export const FriendsTab: React.FC = () => {
 
   return (
     <div
-      className="flex-1 overflow-y-auto p-6 space-y-6 select-none transition-colors duration-300"
+      className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 select-none transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Top Banner & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-lg font-extrabold tracking-tight">Social Network & Friends</h1>
-            <p className="text-xs opacity-60">Direct message connections, verification badges, block lists & report logs.</p>
+            <h1 className="text-base sm:text-lg font-extrabold tracking-tight">Social Network & Friends</h1>
+            <p className="text-xs opacity-60 hidden sm:block">Direct message connections, verification badges, block lists & report logs.</p>
           </div>
         </div>
 
         {/* Tab Buttons */}
-        <div className="p-1 rounded-xl border flex items-center gap-1" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
+        <div className="p-1 rounded-xl border flex items-center gap-1 self-start sm:self-auto" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
           <button onClick={() => setActiveTab('all')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${activeTab === 'all' ? 'bg-indigo-600 text-white' : 'opacity-60 hover:opacity-100'}`}>All Friends ({friendsList.length})</button>
           <button onClick={() => setActiveTab('pending')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${activeTab === 'pending' ? 'bg-indigo-600 text-white' : 'opacity-60 hover:opacity-100'}`}>Pending ({pendingRequests.length})</button>
         </div>
       </div>
 
       {/* Add Friend Form */}
-      <form onSubmit={handleAddFriendSubmit} className="p-4 rounded-2xl border flex items-center gap-3 shadow-md" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+      <form onSubmit={handleAddFriendSubmit} className="p-3 sm:p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-3 shadow-md" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
         <UserPlus className="w-5 h-5 text-indigo-400" />
         <input
           type="text"
