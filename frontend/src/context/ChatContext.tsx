@@ -12,6 +12,8 @@ interface ChatContextType {
   activeTarget: { type: 'channel' | 'dm'; id: string };
   setActiveTarget: (target: { type: 'channel' | 'dm'; id: string }) => void;
   messages: Message[];
+  isLoadingMessages: boolean;
+  isLoadingUsers: boolean;
   sendMessage: (content: string, options?: { isEncrypted?: boolean; attachments?: any[]; replyToId?: string; expiresAt?: string; poll?: any; audioUrl?: string }) => Promise<void>;
   togglePinMessage: (messageId: string) => void;
   addReaction: (messageId: string, emoji: string) => void;
@@ -96,6 +98,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
   const [activeTarget, setActiveTarget] = useState<{ type: 'channel' | 'dm'; id: string }>({ type: 'channel', id: 'ch-general' });
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isE2EEEnabled, setIsE2EEEnabled] = useState<boolean>(false);
   const [friendsList, setFriendsList] = useState<User[]>(MOCK_DM_USERS);
@@ -103,7 +107,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Fetch registered users from DB & merge into DM list
   useEffect(() => {
-    apiService.getUsers().then(dbUsers => {
+    setIsLoadingUsers(true);
+    apiService.getUsers(50).then(dbUsers => {
       if (dbUsers && dbUsers.length > 0) {
         setFriendsList(prev => {
           const existingIds = new Set(prev.map(u => u.id));
@@ -124,6 +129,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return [...prev, ...newDms];
         });
       }
+    }).finally(() => {
+      setIsLoadingUsers(false);
     });
   }, [currentUser.id]);
 
@@ -135,7 +142,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       socket.emit('join_room', targetId);
     }
 
-    apiService.getMessages(targetId, currentUser.id).then(dbMessages => {
+    setIsLoadingMessages(true);
+    apiService.getMessages(targetId, currentUser.id, 50).then(dbMessages => {
       if (dbMessages && dbMessages.length > 0) {
         setMessages(dbMessages);
       } else if (activeTarget.id === 'ch-general') {
@@ -143,6 +151,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setMessages([]);
       }
+    }).finally(() => {
+      setIsLoadingMessages(false);
     });
   }, [activeTarget, currentUser.id, socket]);
 
@@ -313,6 +323,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       activeTarget,
       setActiveTarget,
       messages,
+      isLoadingMessages,
+      isLoadingUsers,
       sendMessage,
       togglePinMessage,
       addReaction,

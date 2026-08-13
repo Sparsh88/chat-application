@@ -30,4 +30,9 @@ const MeetingSchema = new Schema<IMeeting>({
   createdAt: { type: String, default: () => new Date().toISOString() }
 });
 
+// Indexes for date/time ordering and creation recency
+MeetingSchema.index({ createdAt: -1 });
+MeetingSchema.index({ date: 1, time: 1 });
+
 export const MeetingModel = model<IMeeting>('Meeting', MeetingSchema);
+

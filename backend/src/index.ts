@@ -238,25 +238,34 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   }
 });
 
-// USERS: Get all registered users
-app.get('/api/users', async (_req: Request, res: Response) => {
+// USERS: Get all registered users (with lean query, projection, and pagination)
+app.get('/api/users', async (req: Request, res: Response) => {
+  const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
   if (getIsConnected()) {
     try {
-      const users = await UserModel.find({}, '-password');
+      const users = await UserModel.find({}, '-password')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean()
+        .exec();
+      res.setHeader('Cache-Control', 'public, max-age=10, stale-while-revalidate=60');
       return res.json(users);
     } catch (err: any) {
       console.error('Fetch Users Error:', err);
       return res.status(500).json({ error: 'Failed to fetch users' });
     }
   } else {
-    return res.json(Array.from(activeUsers.values()));
+    res.setHeader('Cache-Control', 'public, max-age=10, stale-while-revalidate=60');
+    return res.json(Array.from(activeUsers.values()).slice(0, limit));
   }
 });
 
-// MESSAGES: Get messages by channelId or recipientId
+// MESSAGES: Get messages by channelId or recipientId with pagination and lean queries
 app.get('/api/messages/:targetId', async (req: Request, res: Response) => {
   const { targetId } = req.params;
   const currentUserId = req.query.currentUserId as string | undefined;
+  const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+  const before = req.query.before as string | undefined;
 
   if (getIsConnected()) {
     try {
@@ -277,7 +286,17 @@ app.get('/api/messages/:targetId', async (req: Request, res: Response) => {
         };
       }
 
-      const messages = await MessageModel.find(filter).sort({ timestamp: 1 });
+      if (before) {
+        filter.timestamp = { $lt: before };
+      }
+
+      const messages = await MessageModel.find(filter)
+        .sort({ timestamp: 1 })
+        .limit(limit)
+        .lean()
+        .exec();
+
+      res.setHeader('Cache-Control', 'public, max-age=2, stale-while-revalidate=10');
       return res.json(messages);
     } catch (err: any) {
       console.error('Fetch Messages Error:', err);
@@ -295,7 +314,8 @@ app.get('/api/messages/:targetId', async (req: Request, res: Response) => {
       }
       return m.channelId === targetId || m.recipientId === targetId || m.senderId === targetId;
     });
-    return res.json(filtered);
+    res.setHeader('Cache-Control', 'public, max-age=2, stale-while-revalidate=10');
+    return res.json(filtered.slice(-limit));
   }
 });
 
@@ -322,18 +342,25 @@ app.post('/api/messages', async (req: Request, res: Response) => {
   }
 });
 
-// MEETINGS: Get all scheduled meetings
-app.get('/api/meetings', async (_req: Request, res: Response) => {
+// MEETINGS: Get all scheduled meetings (with lean query and pagination)
+app.get('/api/meetings', async (req: Request, res: Response) => {
+  const limit = Math.min(parseInt(req.query.limit as string) || 30, 100);
   if (getIsConnected()) {
     try {
-      const meetings = await MeetingModel.find().sort({ createdAt: -1 });
+      const meetings = await MeetingModel.find()
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean()
+        .exec();
+      res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
       return res.json(meetings);
     } catch (err: any) {
       console.error('Fetch Meetings Error:', err);
       return res.status(500).json({ error: 'Failed to fetch meetings' });
     }
   } else {
-    return res.json(fallbackMeetings);
+    res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+    return res.json(fallbackMeetings.slice(0, limit));
   }
 });
 

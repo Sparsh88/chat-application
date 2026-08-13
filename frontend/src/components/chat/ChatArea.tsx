@@ -2,10 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import { useChat } from '../../context/ChatContext';
 import { MessageItem } from './MessageItem';
 import { MessageInput } from './MessageInput';
+import { ChatSkeleton } from './ChatSkeleton';
 import { Pin, Sparkles } from 'lucide-react';
 
 export const ChatArea: React.FC = () => {
-  const { messages, activeTarget } = useChat();
+  const { messages, activeTarget, isLoadingMessages } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const currentMessages = messages.filter(m => {
@@ -23,8 +24,10 @@ export const ChatArea: React.FC = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [currentMessages.length]);
+    if (!isLoadingMessages) {
+      scrollToBottom();
+    }
+  }, [currentMessages.length, isLoadingMessages]);
 
   return (
     <div
@@ -48,7 +51,9 @@ export const ChatArea: React.FC = () => {
 
       {/* Main Messages Stream */}
       <div className="flex-1 overflow-y-auto py-4 space-y-1">
-        {currentMessages.length === 0 ? (
+        {isLoadingMessages && currentMessages.length === 0 ? (
+          <ChatSkeleton />
+        ) : currentMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 opacity-60 space-y-3">
             <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
               <Sparkles className="w-8 h-8 animate-pulse" />
@@ -73,3 +78,4 @@ export const ChatArea: React.FC = () => {
     </div>
   );
 };
+

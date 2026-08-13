@@ -268,6 +268,8 @@ export const ServerBar: React.FC<ServerBarProps> = ({ activeView, setActiveView,
             <img
               src={currentUser.avatar}
               alt={currentUser.name}
+              loading="lazy"
+              decoding="async"
               className="w-10 h-10 rounded-xl object-cover ring-2 ring-accent/40 hover:ring-accent transition-all"
             />
             <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-slate-950 ${statusColors[currentUser.status]}`}></div>

@@ -30,4 +30,10 @@ const UserSchema = new Schema<IUser>({
   createdAt: { type: String, default: () => new Date().toISOString() }
 });
 
+// Indexes for accelerated lookup and list sorting
+UserSchema.index({ username: 1 });
+UserSchema.index({ status: 1 });
+UserSchema.index({ createdAt: -1 });
+
 export const UserModel = model<IUser>('User', UserSchema);
+

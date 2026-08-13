@@ -5,11 +5,12 @@ import { useCall } from '../../context/CallContext';
 
 interface CalendarViewProps {
   meetings: Meeting[];
+  isLoading?: boolean;
   onOpenScheduleModal: () => void;
   onDeleteMeeting: (meetingId: string) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ meetings, onOpenScheduleModal, onDeleteMeeting }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ meetings, isLoading, onOpenScheduleModal, onDeleteMeeting }) => {
   const { startCall } = useCall();
 
   return (
@@ -38,7 +39,30 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ meetings, onOpenSche
       </div>
 
       {/* Meetings Grid */}
-      {meetings.length === 0 ? (
+      {isLoading && meetings.length === 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+          {[1, 2].map(i => (
+            <div
+              key={i}
+              className="p-5 rounded-2xl border space-y-3"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-slate-800 rounded" />
+                  <div className="h-5 w-48 bg-slate-800 rounded" />
+                </div>
+                <div className="h-4 w-12 bg-slate-800 rounded" />
+              </div>
+              <div className="h-10 w-full bg-slate-800/60 rounded-xl" />
+              <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="h-4 w-20 bg-slate-800 rounded" />
+                <div className="h-8 w-28 bg-slate-800 rounded-xl" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : meetings.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 opacity-60 text-center">
           <CalendarIcon className="w-14 h-14 mb-4 opacity-40 text-accent" />
           <h3 className="font-bold text-sm">No Scheduled Meetings</h3>
@@ -95,3 +119,4 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ meetings, onOpenSche
     </div>
   );
 };
+

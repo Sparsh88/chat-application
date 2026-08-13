@@ -39,7 +39,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ activeView, toggleAIAssist
           </div>
         ) : (
           <div className="flex items-center gap-2.5">
-            <img src={activeDM?.user.avatar} alt={activeDM?.user.name} className="w-7 h-7 rounded-full object-cover ring-2 ring-accent/40" />
+            <img src={activeDM?.user.avatar} alt={activeDM?.user.name} loading="lazy" decoding="async" className="w-7 h-7 rounded-full object-cover ring-2 ring-accent/40" />
             <div>
               <h2 className="font-bold text-sm leading-none">{activeDM?.user.name}</h2>
               <span className="text-[11px] text-accent font-medium">Active Now</span>

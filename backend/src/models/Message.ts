@@ -38,4 +38,11 @@ const MessageSchema = new Schema<IMessage>({
   audioUrl: { type: String }
 });
 
+// Compound indexes to optimize channel message queries and direct message queries
+MessageSchema.index({ channelId: 1, timestamp: 1 });
+MessageSchema.index({ senderId: 1, recipientId: 1, timestamp: 1 });
+MessageSchema.index({ recipientId: 1, senderId: 1, timestamp: 1 });
+MessageSchema.index({ timestamp: -1 });
+
 export const MessageModel = model<IMessage>('Message', MessageSchema);
+

@@ -3,7 +3,7 @@ import { Hash, Code, Palette, Sparkles, Coffee, Plus, Search, ShieldCheck, Lock,
 import { useChat } from '../../context/ChatContext';
 
 export const ChannelSidebar: React.FC = () => {
-  const { channels, directMessages, activeTarget, setActiveTarget, isE2EEEnabled, setIsE2EEEnabled, searchQuery, setSearchQuery } = useChat();
+  const { channels, directMessages, activeTarget, setActiveTarget, isE2EEEnabled, setIsE2EEEnabled, searchQuery, setSearchQuery, isLoadingUsers } = useChat();
   const [filterTab, setFilterTab] = useState<'all' | 'pinned' | 'favorites' | 'archived'>('all');
   const [isChannelsExpanded, setIsChannelsExpanded] = useState(true);
   const [isDMsExpanded, setIsDMsExpanded] = useState(true);
@@ -148,35 +148,46 @@ export const ChannelSidebar: React.FC = () => {
 
           {isDMsExpanded && (
             <div className="space-y-0.5">
-              {directMessages
-                .filter(dm => dm.user.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map(dm => {
-                  const isActive = activeTarget.type === 'dm' && activeTarget.id === dm.id;
-                  return (
-                    <button
-                      key={dm.id}
-                      onClick={() => setActiveTarget({ type: 'dm', id: dm.id })}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        isActive
-                          ? 'bg-accent/20 text-accent border border-accent/40 font-bold'
-                          : 'opacity-70 hover:opacity-100 hover:bg-black/10'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <div className="relative flex-shrink-0">
-                          <img src={dm.user.avatar} alt={dm.user.name} className="w-5 h-5 rounded-full object-cover" />
-                          <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-slate-900 ${statusColorMap[dm.user.status]}`}></span>
+              {isLoadingUsers && directMessages.length === 0 ? (
+                <div className="space-y-1.5 px-1 py-1 animate-pulse">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg">
+                      <div className="w-5 h-5 rounded-full bg-slate-800" />
+                      <div className="h-3 bg-slate-800 rounded w-24" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                directMessages
+                  .filter(dm => dm.user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map(dm => {
+                    const isActive = activeTarget.type === 'dm' && activeTarget.id === dm.id;
+                    return (
+                      <button
+                        key={dm.id}
+                        onClick={() => setActiveTarget({ type: 'dm', id: dm.id })}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          isActive
+                            ? 'bg-accent/20 text-accent border border-accent/40 font-bold'
+                            : 'opacity-70 hover:opacity-100 hover:bg-black/10'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <div className="relative flex-shrink-0">
+                            <img src={dm.user.avatar} alt={dm.user.name} loading="lazy" decoding="async" className="w-5 h-5 rounded-full object-cover" />
+                            <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-slate-900 ${statusColorMap[dm.user.status]}`}></span>
+                          </div>
+                          <span className="truncate">{dm.user.name}</span>
                         </div>
-                        <span className="truncate">{dm.user.name}</span>
-                      </div>
-                      {dm.unreadCount > 0 && (
-                        <span className="bg-accent text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
-                          {dm.unreadCount}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                        {dm.unreadCount > 0 && (
+                          <span className="bg-accent text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                            {dm.unreadCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })
+              )}
             </div>
           )}
         </div>

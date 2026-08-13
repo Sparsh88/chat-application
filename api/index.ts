@@ -9,16 +9,52 @@ import mongoose, { Schema, model } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sparshchauhan:sparsh12@cluster0.00t8w7f.mongodb.net/letsconnect?retryWrites=true&w=majority";
 
-let isConnected = false;
+// Optimized Mongoose Serverless Connection Caching Pattern
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: MongooseCache | undefined;
+}
+
+let cached = global.mongooseCache;
+
+if (!cached) {
+  cached = global.mongooseCache = { conn: null, promise: null };
+}
+
+const MONGO_OPTIONS: mongoose.ConnectOptions = {
+  maxPoolSize: 10,
+  minPoolSize: 2,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,
+  bufferCommands: false,
+};
+
 const connectDB = async () => {
-  if (isConnected && mongoose.connection.readyState === 1) return;
-  try {
-    await mongoose.connect(MONGODB_URI);
-    isConnected = true;
-    console.log("Connected to MongoDB Atlas");
-  } catch (err) {
-    console.error("MongoDB Connection Error:", err);
+  if (cached!.conn && mongoose.connection.readyState === 1) {
+    return cached!.conn;
   }
+
+  if (!cached!.promise) {
+    cached!.promise = mongoose.connect(MONGODB_URI, MONGO_OPTIONS).then((m: typeof mongoose) => {
+      console.log("Connected to MongoDB Atlas (Pooled & Cached)");
+      return m;
+    });
+  }
+
+  try {
+    cached!.conn = await cached!.promise;
+  } catch (e) {
+    cached!.promise = null;
+    console.error("MongoDB Serverless Connection Error:", e);
+  }
+
+  return cached!.conn;
 };
 
 export interface IUser {
@@ -50,6 +86,10 @@ const UserSchema = new Schema<IUser>({
   bio: { type: String },
   createdAt: { type: String, default: () => new Date().toISOString() }
 });
+
+UserSchema.index({ username: 1 });
+UserSchema.index({ status: 1 });
+UserSchema.index({ createdAt: -1 });
 
 const UserModel = mongoose.models.User || model<IUser>('User', UserSchema);
 
@@ -91,7 +131,47 @@ const MessageSchema = new Schema<IMessage>({
   audioUrl: { type: String }
 });
 
+MessageSchema.index({ channelId: 1, timestamp: 1 });
+MessageSchema.index({ senderId: 1, recipientId: 1, timestamp: 1 });
+MessageSchema.index({ recipientId: 1, senderId: 1, timestamp: 1 });
+MessageSchema.index({ timestamp: -1 });
+
 const MessageModel = mongoose.models.Message || model<IMessage>('Message', MessageSchema);
+
+export interface IMeeting {
+  id: string;
+  title: string;
+  description: string;
+  host: string;
+  date: string;
+  time: string;
+  duration: number;
+  participants: string[];
+  link: string;
+  isRecurring?: boolean;
+  timeZone: string;
+  createdAt: string;
+}
+
+const MeetingSchema = new Schema<IMeeting>({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  description: { type: String, default: '' },
+  host: { type: String, required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
+  duration: { type: Number, required: true },
+  participants: { type: [String], default: [] },
+  link: { type: String, required: true },
+  isRecurring: { type: Boolean, default: false },
+  timeZone: { type: String, default: 'EST (UTC-5)' },
+  createdAt: { type: String, default: () => new Date().toISOString() }
+});
+
+MeetingSchema.index({ createdAt: -1 });
+MeetingSchema.index({ date: 1, time: 1 });
+
+const MeetingModel = mongoose.models.Meeting || model<IMeeting>('Meeting', MeetingSchema);
 
 const DEMO_ACCOUNTS: Record<string, any> = {
   'alex.rivera@letsconnect.io': {
@@ -143,6 +223,7 @@ app.use(express.json());
 // Health Check
 app.get('/api/health', async (_req: Request, res: Response) => {
   await connectDB();
+  res.setHeader('Cache-Control', 'no-cache');
   res.json({
     status: 'ok',
     databaseConnected: mongoose.connection.readyState === 1
@@ -161,7 +242,7 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
   const userId = `user-${Date.now()}`;
 
   try {
-    const existingUser = await UserModel.findOne({ email });
+    const existingUser = await UserModel.findOne({ email }).lean().exec();
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered. Please log in.' });
     }
@@ -243,11 +324,18 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   }
 });
 
-// USERS: Get all registered users
-app.get('/api/users', async (_req: Request, res: Response) => {
+// USERS: Get registered users (with lean query, projection, and pagination)
+app.get('/api/users', async (req: Request, res: Response) => {
   await connectDB();
+  const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
   try {
-    const users = await UserModel.find({}, '-password');
+    const users = await UserModel.find({}, '-password')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean()
+      .exec();
+
+    res.setHeader('Cache-Control', 'public, max-age=10, stale-while-revalidate=60');
     return res.json(users);
   } catch (err: any) {
     console.error('Fetch Users Error:', err);
@@ -255,11 +343,13 @@ app.get('/api/users', async (_req: Request, res: Response) => {
   }
 });
 
-// MESSAGES: Get messages
+// MESSAGES: Get messages with compound index, lean query, and pagination
 app.get('/api/messages/:targetId', async (req: Request, res: Response) => {
   await connectDB();
   const { targetId } = req.params;
   const currentUserId = req.query.currentUserId as string | undefined;
+  const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+  const before = req.query.before as string | undefined;
 
   try {
     let filter: any;
@@ -279,7 +369,17 @@ app.get('/api/messages/:targetId', async (req: Request, res: Response) => {
       };
     }
 
-    const messages = await MessageModel.find(filter).sort({ timestamp: 1 });
+    if (before) {
+      filter.timestamp = { $lt: before };
+    }
+
+    const messages = await MessageModel.find(filter)
+      .sort({ timestamp: 1 })
+      .limit(limit)
+      .lean()
+      .exec();
+
+    res.setHeader('Cache-Control', 'public, max-age=2, stale-while-revalidate=10');
     return res.json(messages);
   } catch (err: any) {
     console.error('Fetch Messages Error:', err);
@@ -303,6 +403,43 @@ app.post('/api/messages', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('Save Message Error:', err);
     return res.status(500).json({ error: 'Failed to save message' });
+  }
+});
+
+// MEETINGS: Get meetings with lean execution
+app.get('/api/meetings', async (req: Request, res: Response) => {
+  await connectDB();
+  const limit = Math.min(parseInt(req.query.limit as string) || 30, 100);
+  try {
+    const meetings = await MeetingModel.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean()
+      .exec();
+
+    res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+    return res.json(meetings);
+  } catch (err: any) {
+    console.error('Fetch Meetings Error:', err);
+    return res.status(500).json({ error: 'Failed to fetch meetings' });
+  }
+});
+
+// MEETINGS: Create meeting
+app.post('/api/meetings', async (req: Request, res: Response) => {
+  await connectDB();
+  const meetingData = {
+    id: req.body.id || `mtg-${Date.now()}`,
+    ...req.body,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    const newMeeting = await MeetingModel.create(meetingData);
+    return res.status(201).json(newMeeting);
+  } catch (err: any) {
+    console.error('Create Meeting Error:', err);
+    return res.status(500).json({ error: 'Failed to create meeting' });
   }
 });
 

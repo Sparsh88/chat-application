@@ -4,7 +4,7 @@ import { useChat } from '../../context/ChatContext';
 import { User } from '../../types';
 
 export const FriendsTab: React.FC = () => {
-  const { friendsList, pendingRequests, addFriend, blockUser, setActiveTarget } = useChat();
+  const { friendsList, pendingRequests, addFriend, blockUser, setActiveTarget, isLoadingUsers } = useChat();
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
   const [newFriendInput, setNewFriendInput] = useState('');
   const [showReportModal, setShowReportModal] = useState(false);
@@ -59,48 +59,67 @@ export const FriendsTab: React.FC = () => {
 
       {/* Friends Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {friendsList.map(friend => (
-          <div key={friend.id} className="p-4 rounded-2xl border flex items-center justify-between group hover:border-indigo-500/40 transition-all shadow-md" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <img src={friend.avatar} alt={friend.name} className="w-11 h-11 rounded-xl object-cover ring-2 ring-indigo-500/30" />
-                <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  <h4 className="font-bold text-xs">{friend.name}</h4>
-                  {friend.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />}
+        {isLoadingUsers && friendsList.length === 0 ? (
+          [1, 2, 3].map(i => (
+            <div
+              key={i}
+              className="p-4 rounded-2xl border flex items-center justify-between animate-pulse"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-slate-800" />
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-24 bg-slate-800 rounded" />
+                  <div className="h-2.5 w-16 bg-slate-800 rounded" />
                 </div>
-                <span className="text-[10px] opacity-60 font-mono">@{friend.username}</span>
-                <p className="text-[11px] opacity-60 italic truncate max-w-[140px] mt-0.5">{friend.customStatus || 'Online & active'}</p>
+              </div>
+              <div className="h-6 w-16 bg-slate-800 rounded-xl" />
+            </div>
+          ))
+        ) : (
+          friendsList.map(friend => (
+            <div key={friend.id} className="p-4 rounded-2xl border flex items-center justify-between group hover:border-indigo-500/40 transition-all shadow-md" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <img src={friend.avatar} alt={friend.name} loading="lazy" decoding="async" className="w-11 h-11 rounded-xl object-cover ring-2 ring-indigo-500/30" />
+                  <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1">
+                    <h4 className="font-bold text-xs">{friend.name}</h4>
+                    {friend.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />}
+                  </div>
+                  <span className="text-[10px] opacity-60 font-mono">@{friend.username}</span>
+                  <p className="text-[11px] opacity-60 italic truncate max-w-[140px] mt-0.5">{friend.customStatus || 'Online & active'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setActiveTarget({ type: 'dm', id: `dm-${friend.id}` })}
+                  className="p-2 opacity-70 hover:opacity-100 hover:text-indigo-400 rounded-xl transition-colors"
+                  title="Send Message"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => { setSelectedUserToReport(friend); setShowReportModal(true); }}
+                  className="p-2 opacity-70 hover:opacity-100 hover:text-rose-400 rounded-xl transition-colors"
+                  title="Report User"
+                >
+                  <Flag className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => blockUser(friend.id)}
+                  className="p-2 opacity-70 hover:opacity-100 hover:text-rose-500 rounded-xl transition-colors"
+                  title="Block User"
+                >
+                  <Ban className="w-4 h-4" />
+                </button>
               </div>
             </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setActiveTarget({ type: 'dm', id: `dm-${friend.id}` })}
-                className="p-2 opacity-70 hover:opacity-100 hover:text-indigo-400 rounded-xl transition-colors"
-                title="Send Message"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => { setSelectedUserToReport(friend); setShowReportModal(true); }}
-                className="p-2 opacity-70 hover:opacity-100 hover:text-rose-400 rounded-xl transition-colors"
-                title="Report User"
-              >
-                <Flag className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => blockUser(friend.id)}
-                className="p-2 opacity-70 hover:opacity-100 hover:text-rose-500 rounded-xl transition-colors"
-                title="Block User"
-              >
-                <Ban className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Report User Modal */}

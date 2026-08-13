@@ -2,6 +2,11 @@ import { Meeting, Message, User } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
+// In-memory cache & In-flight request deduplication table
+const inFlightRequests = new Map<string, Promise<any>>();
+const memoryCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL_MS = 15000; // 15s client-side cache
+
 const getLocalUsers = (): any[] => {
   try {
     const data = localStorage.getItem('pulse_local_users_db');
@@ -36,7 +41,53 @@ const saveLocalMessages = (messages: any[]) => {
   }
 };
 
+// Generic deduplicated fetch helper
+async function deduplicatedFetch<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  useCache: boolean = true
+): Promise<T> {
+  // Check memory cache
+  if (useCache) {
+    const cached = memoryCache.get(key);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+  }
+
+  // Check in-flight promise
+  if (inFlightRequests.has(key)) {
+    return inFlightRequests.get(key) as Promise<T>;
+  }
+
+  const promise = (async () => {
+    try {
+      const data = await fetcher();
+      if (useCache && data) {
+        memoryCache.set(key, { data, timestamp: Date.now() });
+      }
+      return data;
+    } finally {
+      inFlightRequests.delete(key);
+    }
+  })();
+
+  inFlightRequests.set(key, promise);
+  return promise;
+}
+
 export const apiService = {
+  // Invalidate specific cache key or all caches
+  invalidateCache(keyPrefix?: string) {
+    if (keyPrefix) {
+      for (const key of memoryCache.keys()) {
+        if (key.startsWith(keyPrefix)) memoryCache.delete(key);
+      }
+    } else {
+      memoryCache.clear();
+    }
+  },
+
   // Auth API
   async login(email: string, password?: string): Promise<User> {
     try {
@@ -134,7 +185,9 @@ export const apiService = {
         throw new Error(err.error || 'Registration failed');
       }
 
-      return await response.json();
+      const newUser = await response.json();
+      apiService.invalidateCache('users');
+      return newUser;
     } catch (err: any) {
       // Handle network errors (e.g. backend server offline or VITE_BACKEND_URL not set)
       if (err.name === 'TypeError' || err.message === 'Failed to fetch') {
@@ -165,25 +218,39 @@ export const apiService = {
     }
   },
 
-  // Users API
-  async getUsers(): Promise<User[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/users`);
-      if (!response.ok) return getLocalUsers();
-      return response.json();
-    } catch {
-      return getLocalUsers();
-    }
+  // Users API with deduplication and caching
+  async getUsers(limit: number = 50): Promise<User[]> {
+    const cacheKey = `users-limit-${limit}`;
+    return deduplicatedFetch(cacheKey, async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users?limit=${limit}`);
+        if (!response.ok) return getLocalUsers();
+        return await response.json();
+      } catch {
+        return getLocalUsers();
+      }
+    });
   },
 
-  // Messages API
-  async getMessages(targetId: string, currentUserId?: string): Promise<Message[]> {
-    try {
-      const url = currentUserId 
-        ? `${API_BASE_URL}/api/messages/${targetId}?currentUserId=${currentUserId}`
-        : `${API_BASE_URL}/api/messages/${targetId}`;
-      const response = await fetch(url);
-      if (!response.ok) {
+  // Messages API with deduplication, pagination, and caching
+  async getMessages(targetId: string, currentUserId?: string, limit: number = 50): Promise<Message[]> {
+    const cacheKey = `messages-${targetId}-${currentUserId || 'all'}-${limit}`;
+    return deduplicatedFetch(cacheKey, async () => {
+      try {
+        const url = currentUserId 
+          ? `${API_BASE_URL}/api/messages/${targetId}?currentUserId=${currentUserId}&limit=${limit}`
+          : `${API_BASE_URL}/api/messages/${targetId}?limit=${limit}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          const local = getLocalMessages();
+          return local.filter(m => 
+            m.channelId === targetId || 
+            (m.senderId === currentUserId && m.recipientId === targetId) || 
+            (m.senderId === targetId && m.recipientId === currentUserId)
+          );
+        }
+        return await response.json();
+      } catch {
         const local = getLocalMessages();
         return local.filter(m => 
           m.channelId === targetId || 
@@ -191,18 +258,16 @@ export const apiService = {
           (m.senderId === targetId && m.recipientId === currentUserId)
         );
       }
-      return response.json();
-    } catch {
-      const local = getLocalMessages();
-      return local.filter(m => 
-        m.channelId === targetId || 
-        (m.senderId === currentUserId && m.recipientId === targetId) || 
-        (m.senderId === targetId && m.recipientId === currentUserId)
-      );
-    }
+    });
   },
 
   async saveMessage(message: Partial<Message>): Promise<Message> {
+    // Invalidate message cache for this channel/target
+    const targetKey = message.channelId || message.recipientId;
+    if (targetKey) {
+      apiService.invalidateCache(`messages-${targetKey}`);
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/messages`, {
         method: 'POST',
@@ -217,7 +282,7 @@ export const apiService = {
         return message as Message;
       }
 
-      return response.json();
+      return await response.json();
     } catch {
       const local = getLocalMessages();
       local.push(message);
@@ -226,18 +291,22 @@ export const apiService = {
     }
   },
 
-  // Meetings API
-  async getMeetings(): Promise<Meeting[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/meetings`);
-      if (!response.ok) return [];
-      return response.json();
-    } catch {
-      return [];
-    }
+  // Meetings API with deduplication and caching
+  async getMeetings(limit: number = 30): Promise<Meeting[]> {
+    const cacheKey = `meetings-limit-${limit}`;
+    return deduplicatedFetch(cacheKey, async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/meetings?limit=${limit}`);
+        if (!response.ok) return [];
+        return await response.json();
+      } catch {
+        return [];
+      }
+    });
   },
 
   async createMeeting(meeting: Meeting): Promise<Meeting> {
+    apiService.invalidateCache('meetings');
     const response = await fetch(`${API_BASE_URL}/api/meetings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

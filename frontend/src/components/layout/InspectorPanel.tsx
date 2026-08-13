@@ -64,6 +64,8 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({ onClose, onOpenS
               <img
                 src={activeDM?.user.avatar || currentUser.avatar}
                 alt="Avatar"
+                loading="lazy"
+                decoding="async"
                 className="w-16 h-16 rounded-2xl object-cover ring-2 ring-indigo-500/40 mb-3 shadow-lg"
               />
               <div className="flex items-center gap-1.5">

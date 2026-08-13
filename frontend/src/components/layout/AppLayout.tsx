@@ -52,6 +52,7 @@ export const AppLayout: React.FC = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [meetings, setMeetings] = useState<Meeting[]>(INITIAL_MEETINGS);
+  const [isLoadingMeetings, setIsLoadingMeetings] = useState<boolean>(false);
 
   // Close mobile sidebar on target or view change
   useEffect(() => {
@@ -63,12 +64,15 @@ export const AppLayout: React.FC = () => {
     setActiveView('chat');
   }, [activeTarget]);
 
-  // Fetch persistent meetings on mount
+  // Fetch persistent meetings on mount with loading state and caching
   useEffect(() => {
-    apiService.getMeetings().then(dbMeetings => {
+    setIsLoadingMeetings(true);
+    apiService.getMeetings(30).then(dbMeetings => {
       if (dbMeetings && dbMeetings.length > 0) {
         setMeetings(dbMeetings);
       }
+    }).finally(() => {
+      setIsLoadingMeetings(false);
     });
   }, []);
 
@@ -150,6 +154,7 @@ export const AppLayout: React.FC = () => {
             {activeView === 'meetings' && (
               <CalendarView
                 meetings={meetings}
+                isLoading={isLoadingMeetings}
                 onOpenScheduleModal={() => setIsScheduleModalOpen(true)}
                 onDeleteMeeting={handleDeleteMeeting}
               />

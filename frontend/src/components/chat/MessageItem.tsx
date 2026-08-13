@@ -9,7 +9,7 @@ interface MessageItemProps {
   message: Message;
 }
 
-export const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
+export const MessageItem: React.FC<MessageItemProps> = React.memo(({ message }) => {
   const { togglePinMessage, addReaction, votePoll, deleteMessage } = useChat();
   const { currentUser } = useAuth();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -77,6 +77,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
       <img
         src={message.senderAvatar}
         alt={message.senderName}
+        loading="lazy"
+        decoding="async"
         className="w-9 h-9 rounded-xl object-cover ring-2 ring-indigo-500/20 flex-shrink-0"
       />
 
@@ -208,4 +210,5 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
       </div>
     </div>
   );
-};
+});
+
