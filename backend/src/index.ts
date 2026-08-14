@@ -342,14 +342,20 @@ app.get('/api', (_req: Request, res: Response) => {
   });
 });
 
-app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({
+const healthCheckHandler = (_req: Request, res: Response) => {
+  res.status(200).json({
     status: 'ok',
+    message: 'API is running',
     databaseConnected: getIsConnected(),
     uptime: process.uptime(),
-    activeConnections: activeUsers.size
+    activeConnections: activeUsers.size,
+    timestamp: new Date().toISOString()
   });
-});
+};
+
+// Health Check Endpoints (Both /health and /api/health supported)
+app.get('/health', healthCheckHandler);
+app.get('/api/health', healthCheckHandler);
 
 // AUTH: Register
 app.post('/api/auth/register', async (req: Request, res: Response) => {
@@ -833,7 +839,26 @@ io.on('connection', (socket: Socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Let's Connect Backend running on port ${PORT}`);
+// Global Error Handler Middleware
+app.use((err: any, _req: Request, res: Response, _next: any) => {
+  console.error('❌ Unhandled Server Error:', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error'
+  });
+});
+
+// Process-level crash prevention
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+});
+
+const PORT = Number(process.env.PORT) || 5000;
+const HOST = '0.0.0.0';
+
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 Let's Connect Backend running on port ${PORT} bound to ${HOST}`);
 });

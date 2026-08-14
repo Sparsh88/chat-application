@@ -6,8 +6,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 // @ts-ignore
 import mongoose, { Schema, model } from 'mongoose';
-
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sparshchauhan:sparsh12@cluster0.00t8w7f.mongodb.net/letsconnect?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI || "";
 
 // Optimized Mongoose Serverless Connection Caching Pattern
 interface MongooseCache {
