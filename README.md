@@ -1,397 +1,228 @@
-<div align="center">
+# Let's Connect — Real-Time Chat & Collaboration Platform
 
-# 💬 Let's Connect
-
-### Real-Time Chat & Collaboration Platform
-
-A modern, full-stack real-time communication platform built with **React, TypeScript, Node.js, Express, Socket.IO, and WebRTC**. It enables seamless messaging, voice/video calling, AI-powered productivity features, meeting scheduling, and real-time analytics through a responsive and intuitive user interface.
-
-<p align="center">
-  <a href="https://chat-application-gamma-steel.vercel.app/">
-    <img src="https://img.shields.io/badge/Live_Demo-Vercel-000?style=for-the-badge&logo=vercel" />
-  </a>
-  <a href="https://chat-application-e7yi.onrender.com">
-    <img src="https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render" />
-  </a>
-  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react" />
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript" />
-  <img src="https://img.shields.io/badge/Socket.IO-010101?style=for-the-badge&logo=socketdotio" />
-  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express" />
-</p>
-
-</div>
+A modern, full-stack real-time communication platform built with React, TypeScript, Node.js, Socket.IO, and WebRTC for low-latency messaging, peer-to-peer audio/video calling, and AI-powered productivity.
 
 ---
 
-# 📖 Overview
+## 🌐 Live Demo & Links
 
-**Let's Connect** is a feature-rich real-time chat application designed to simulate modern collaboration platforms such as Discord, Slack, and Microsoft Teams.
-
-The project focuses on building scalable real-time applications using WebSockets and WebRTC while integrating AI-powered productivity features like conversation summaries and meeting assistance.
-
-It demonstrates modern full-stack development practices including real-time communication, responsive UI design, context-based state management, REST APIs, and deployment using cloud platforms.
+- **Live Demo**: [chat-application-gamma-steel.vercel.app](https://chat-application-gamma-steel.vercel.app/)
+- **Backend API**: [chat-application-e7yi.onrender.com](https://chat-application-e7yi.onrender.com)
+- **GitHub Repository**: [github.com/Sparsh88/chat-application](https://github.com/Sparsh88/chat-application)
 
 ---
 
-# 🚀 Live Demo
+## 📖 Overview
 
-| Component | URL | Description |
+**Let's Connect** is a full-stack real-time collaboration application engineered to combine instant messaging, browser-native audio/video conferencing, and AI workflow assistance into a single unified workspace.
+
+The application solves key real-time engineering challenges, including bi-directional WebSocket state synchronization, WebRTC peer connection signaling for low-latency media streams, and database connection resilience with automatic fallback handling.
+
+Built using React, TypeScript, Node.js, Express, Socket.IO, and MongoDB, the platform delivers a fast, responsive experience with modern team collaboration features such as public channels, direct messaging, meeting scheduling, and an AI copilot powered by Google Gemini.
+
+---
+
+## 🎯 Problem Statement
+
+Traditional collaboration setups often require users to switch between disconnected tools for text chat, video meetings, and scheduling.
+
+Let's Connect addresses this with:
+- **Fragmented Tools**: Consolidates real-time messaging, WebRTC calling, calendar scheduling, and AI assistance into a single interface.
+- **High Latency & Overhead**: Replaces HTTP polling with full-duplex WebSocket connections for instantaneous sub-100ms message delivery.
+- **Heavy Media Server Loads**: Uses peer-to-peer WebRTC connections for voice and video streams, minimizing backend bandwidth consumption.
+- **Backend Cold Starts & Outages**: Features resilient MongoDB connection pooling with seamless in-memory fallback to avoid application downtime.
+
+---
+
+## ✨ Key Features
+
+### 💬 Real-Time Messaging & Channels
+- **Full-Duplex Chat**: Instant message delivery across public channels (`#general`, `#engineering`, `#design`, `#announcements`) and private 1-on-1 direct messages using Socket.IO.
+- **Interactive Chat UX**: Live typing indicators, message pinning, emoji reactions with user counters, and timestamp formatting.
+
+### 📹 WebRTC Voice & Video Calling
+- **Peer-to-Peer Calls**: 1-on-1 HD voice and video conferencing built on browser-native `RTCPeerConnection` with Socket.IO signaling.
+- **In-Call Controls**: Screen sharing via `getDisplayMedia`, audio/video mute toggles, audio visualizer, and local call recording (`MediaRecorder`).
+
+### 🤖 AI Productivity Assistant (Google Gemini)
+- **Message Tone Rewriter**: Rewrite drafts in professional, friendly, formal, concise, or enthusiastic tones.
+- **Smart Replies & Summaries**: Auto-generate context-aware quick responses and one-click bulleted executive summaries of chat history.
+- **Action Item Extraction**: Parse task assignments and action items directly from ongoing conversation threads.
+
+### 📅 Meeting Scheduler & Calendar
+- **Event Management**: Create and schedule meetings with titles, descriptions, host details, and attendee lists.
+- **Calendar Integration**: Visual monthly calendar view and one-click `.ics` calendar export for external schedule sync.
+
+### 📊 Real-Time Analytics Dashboard
+- **Usage Metrics**: Interactive visualizations using Recharts displaying daily message volume, call counts, weekly activity breakdowns, and platform device usage.
+
+### 🔐 Security & Client-Side Encryption
+- **Authentication**: User registration and login with bcrypt password hashing and session management.
+- **E2EE Utility**: Client-side encryption/decryption module utilizing Web Crypto API (`ECDH` / `AES-GCM-256`).
+
+### 🎨 Theme Customization
+- **6 Theme Presets**: Seamless switching between Dark, Light, Midnight OLED, Cyberpunk, Emerald, and Sunset palettes.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology | Purpose |
 | :--- | :--- | :--- |
-| **🌐 Frontend (Live App)** | [https://chat-application-gamma-steel.vercel.app/](https://chat-application-gamma-steel.vercel.app/) | Interactive chat UI, voice/video calls, AI assistant, and scheduler |
-| **⚡ Backend API** | [https://chat-application-e7yi.onrender.com](https://chat-application-e7yi.onrender.com) | Express REST API server, Socket.IO real-time engine & WebRTC signaling |
+| **Frontend** | React 18, TypeScript, Vite | Component-based client interface with strict type safety |
+| **Styling & UI** | Tailwind CSS, Lucide React, Recharts | Responsive layout, modern iconography, and data visualizations |
+| **Backend** | Node.js, Express.js, TypeScript | RESTful API endpoints and WebSocket server |
+| **Real-Time Engine** | Socket.IO (WebSockets) | Full-duplex messaging, presence events, and WebRTC signaling |
+| **Media Streaming** | WebRTC (`RTCPeerConnection`) | Direct peer-to-peer audio, video, and screen sharing |
+| **Database** | MongoDB Atlas, Mongoose | Data modeling and persistent storage for users, messages, and meetings |
+| **AI Integration** | Google Gemini API (`@google/generative-ai`) | Message rewriting, thread summarization, and smart replies |
+| **Security** | Bcrypt.js, Helmet, CORS, Web Crypto API | Password hashing, HTTP security headers, and client-side encryption |
+| **Deployment** | Vercel, Render | Frontend hosting (Vercel) and backend web service hosting (Render) |
 
 ---
 
-# ✨ Features
-
-## 💬 Real-Time Messaging
-
-- Instant messaging using Socket.IO
-- Typing indicators
-- Online/offline presence
-- Emoji reactions
-- Message pinning
-- Read status
-- Real-time updates
-
----
-
-## 📹 Voice & Video Calling
-
-- WebRTC-powered calling
-- HD video calls
-- Voice calls
-- Screen sharing
-- Call controls
-- Responsive call interface
-
----
-
-## 🤖 AI Assistant
-
-Powered by **Google Gemini**
-
-- Conversation summaries
-- Smart reply suggestions
-- Action item extraction
-- Productivity assistance
-
----
-
-## 📅 Meeting Scheduler
-
-- Schedule meetings
-- Calendar interface
-- Meeting reminders
-- Export meetings as `.ics`
-- Team collaboration support
-
----
-
-## 📊 Analytics Dashboard
-
-Visual insights including:
-
-- Message activity
-- User engagement
-- Conversation statistics
-- Performance metrics
-- Interactive charts
-
----
-
-## 🎨 Theme Engine
-
-Choose from multiple themes:
-
-- 🌙 Dark
-- ☀️ Light
-- ⚫ OLED
-- 💜 Cyberpunk
-- 💚 Emerald
-- 🌅 Sunset
-
----
-
-## 👥 Social Features
-
-- Friend requests
-- Online status
-- Custom status messages
-- User profiles
-
----
-
-## 🔐 Security
-
-- End-to-End Encryption architecture
-- Secure authentication flow
-- Protected API communication
-- Socket authentication support
-
----
-
-## 📱 Responsive Design
-
-Optimized for
-
-- Desktop
-- Tablet
-- Mobile
-
----
-
-# 🛠️ Tech Stack
-
-## Frontend
-
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Context API
-- Lucide React
-- Recharts
-
----
-
-## Backend
-
-- Node.js
-- Express.js
-- Socket.IO
-- REST APIs
-
----
-
-## Real-Time Technologies
-
-- WebSockets (Socket.IO)
-- WebRTC
-
----
-
-## AI Integration
-
-- Google Gemini API
-
----
-
-## Deployment
-
-- Vercel
-- Render
-
----
-
-# 📂 Project Structure
+## 🏗️ Architecture
 
 ```text
-lets-connect/
-│
-├── frontend/
+┌─────────────────────────────────────────────────────────────┐
+│                  Client Browser (React + TS)                │
+│    Context State (Auth, Socket, Call, Theme) + WebRTC UI    │
+└───────────────┬─────────────────────────────┬───────────────┘
+                │                             │
+   HTTP REST    │                             │ WebRTC P2P Media Stream
+   & Socket.IO  ▼                             ▼ (Direct Audio / Video)
+┌───────────────────────────┐      ┌──────────────────────────┐
+│     Node.js / Express     │      │    Remote Peer Client    │
+│  (REST API & Signaling)   │      │      (Peer Browser)      │
+└───────────────┬───────────┘      └──────────────────────────┘
+                │
+                ▼
+┌───────────────────────────┐
+│       MongoDB Atlas       │
+│  (Mongoose Models / Cache)│
+└───────────────────────────┘
+```
+
+---
+
+## 🔄 Application Flow
+
+1. **Authentication & Session**: The user logs in or registers; the backend validates credentials with bcrypt and returns the user profile.
+2. **WebSocket Handshake**: The frontend connects via Socket.IO, registers the active user session (`user_login`), and subscribes to room channels.
+3. **Real-Time Messaging**: Dispatched messages are broadcast instantaneously to room participants over WebSockets and persisted to MongoDB.
+4. **WebRTC Signaling**: When a call is initiated, Socket.IO relays the SDP offer, SDP answer, and ICE candidates between peers.
+5. **Direct Media Exchange**: Once signaling completes, audio and video streams flow directly peer-to-peer between browsers without server media relay.
+6. **AI Assistant Processing**: On-demand user requests (summarize chat, rewrite text, extract tasks) query the Google Gemini 1.5 Flash model.
+7. **Schedule & Metrics Sync**: Meeting entries and analytics metrics are synchronized through REST API endpoints and live socket notifications.
+
+---
+
+## 📁 Project Structure
+
+```text
+chat-application/
+├── frontend/                     # React + TypeScript Client
 │   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   ├── utils/
-│   │   └── types/
-│   └── package.json
+│   │   ├── components/           # UI modules (chat, call, ai, meeting, analytics, auth)
+│   │   ├── context/              # State management (Auth, Socket, Call, Theme, Chat)
+│   │   ├── services/             # API, WebRTC, Gemini AI, and E2EE services
+│   │   ├── types/                # TypeScript interfaces and data models
+│   │   ├── App.tsx               # Main application component
+│   │   └── main.tsx              # Application entry point
+│   ├── package.json
+│   └── vite.config.ts
 │
-├── backend/
+├── backend/                      # Node.js + Express Backend
 │   ├── src/
-│   │   ├── routes/
-│   │   ├── socket/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── utils/
-│   │   └── index.ts
-│   └── package.json
+│   │   ├── models/               # Mongoose Schemas (User, Message, Meeting)
+│   │   ├── db.ts                 # Resilient MongoDB connection pooling
+│   │   └── index.ts              # REST API routes & Socket.IO signaling server
+│   ├── package.json
+│   └── tsconfig.json
 │
-├── vercel.json
-├── render.yaml
+├── api/                          # Serverless entry point (Vercel)
+│   └── index.ts
+├── vercel.json                   # Frontend deployment configuration
+├── render.yaml                   # Backend deployment configuration
 └── README.md
 ```
 
 ---
 
-# ⚙️ Getting Started
+## ⚙️ Installation & Setup
 
-## Prerequisites
+### Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **npm**: v9.0.0 or higher
+- **MongoDB**: MongoDB Atlas URI or local MongoDB instance (Optional — in-memory fallback enabled)
 
-- Node.js 18+
-- npm
-
----
-
-## Installation
-
-Clone the repository
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Sparsh88/chat-application.git
+cd chat-application
 ```
 
-Move into the project
-
-```bash
-cd lets-connect
-```
-
----
-
-### Backend
-
+### 2. Backend Setup
 ```bash
 cd backend
-
 npm install
 
-npm run dev
-```
-
----
-
-### Frontend
-
-Open a new terminal
-
-```bash
-cd frontend
-
-npm install
-
-npm run dev
-```
-
----
-
-Application URLs
-
-Frontend
-
-```
-http://localhost:3000
-```
-
-Backend
-
-```
-http://localhost:5000
-```
-
----
-
-# 🔑 Environment Variables
-
-## Backend
-
-Create a `.env` file
-
-```env
+# Configure environment variables (.env)
 PORT=5000
-
 FRONTEND_URL=http://localhost:3000
+MONGODB_URI=your_mongodb_connection_string
+
+# Start backend server
+npm run dev
 ```
 
----
+### 3. Frontend Setup
+```bash
+cd ../frontend
+npm install
 
-## Frontend
-
-Create a `.env` file
-
-```env
+# Configure environment variables (.env)
 VITE_BACKEND_URL=http://localhost:5000
+VITE_GEMINI_API_KEY=your_gemini_api_key
+
+# Start frontend development server
+npm run dev
 ```
+
+Visit `http://localhost:3000` in your browser.
 
 ---
 
-# ☁️ Deployment
+## 🔌 API & WebSocket Endpoints
 
-## Frontend
+### REST API
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Health check, DB connection status, and active socket count |
+| `POST` | `/api/auth/register` | Create a new user account with hashed password |
+| `POST` | `/api/auth/login` | Authenticate user and initiate session |
+| `GET` | `/api/users` | Retrieve list of registered users |
+| `GET` | `/api/messages/:targetId` | Fetch message history by channel ID or user ID |
+| `POST` | `/api/messages` | Store and dispatch a new chat message |
+| `GET` | `/api/meetings` | Retrieve scheduled team meetings |
+| `POST` | `/api/meetings` | Create and broadcast a new scheduled meeting |
+| `GET` | `/api/analytics` | Fetch user engagement and platform metrics |
 
-Hosted on **Vercel**
-
-```
-Framework: Vite
-Build Command: npm run build
-Output Directory: dist
-```
-
----
-
-## Backend
-
-Hosted on **Render**
-
-```
-Build Command:
-npm install && npm run build
-
-Start Command:
-npm start
-```
-
----
-
-# 🎯 Learning Outcomes
-
-This project helped me gain practical experience in:
-
-- Building scalable real-time applications
-- WebSocket communication using Socket.IO
-- WebRTC implementation
-- React Context API
-- TypeScript development
-- REST API design
-- Cloud deployment
-- Responsive UI development
-- AI integration with Google Gemini
-- State management in React
+### Key Socket.IO Events
+| Event Name | Direction | Description |
+| :--- | :--- | :--- |
+| `user_login` | Client → Server | Registers user session and broadcasts online status |
+| `send_message` | Client → Server | Sends message to room or recipient and persists to DB |
+| `receive_message` | Server → Client | Delivers incoming message to target client |
+| `typing_start` / `typing_stop` | Client → Server | Broadcasts live typing indicators to room members |
+| `call_initiate` / `call_answer` | Client ↔ Server | Relays WebRTC SDP Offer and Answer between peers |
+| `ice_candidate` | Bidirectional | Exchanges ICE candidates for P2P NAT traversal |
 
 ---
 
-# 📌 Future Improvements
-
-- Push notifications
-- File & media sharing
-- Group video calls
-- Message search
-- Chat backups
-- Role-based permissions
-- Progressive Web App (PWA)
-- Docker support
-- CI/CD pipeline
-- Database integration with PostgreSQL or MongoDB
-
----
-
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Sparsh Chauhan**
-
-B.Tech Computer Science Engineering
-
-Full Stack Web Developer
-
-GitHub: https://github.com/Sparsh88
-
-LinkedIn: https://linkedin.com/in/sparshchauhan08
-
----
-
-# ⭐ Support
-
-If you found this project helpful, consider giving it a **Star ⭐** on GitHub.
-
-It motivates me to build more open-source projects.
-
----
-
-# 📜 License
-
-This project is licensed under the **MIT License**.
-
-Feel free to use, modify, and learn from it.
+- **GitHub**: [github.com/Sparsh88](https://github.com/Sparsh88)
+- **LinkedIn**: [linkedin.com/in/sparshchauhan08](https://linkedin.com/in/sparshchauhan08)
+- **Live Project**: [chat-application-gamma-steel.vercel.app](https://chat-application-gamma-steel.vercel.app/)
