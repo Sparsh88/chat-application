@@ -35,11 +35,10 @@ It demonstrates modern full-stack development practices including real-time comm
 
 # 🚀 Live Demo
 
-### 🌐 Frontend
-https://chat-application-gamma-steel.vercel.app/
-
-### ⚡ Backend API
-https://chat-application-e7yi.onrender.com
+| Component | URL | Description |
+| :--- | :--- | :--- |
+| **🌐 Frontend (Live App)** | [https://chat-application-gamma-steel.vercel.app/](https://chat-application-gamma-steel.vercel.app/) | Interactive chat UI, voice/video calls, AI assistant, and scheduler |
+| **⚡ Backend API** | [https://chat-application-e7yi.onrender.com](https://chat-application-e7yi.onrender.com) | Express REST API server, Socket.IO real-time engine & WebRTC signaling |
 
 ---
 

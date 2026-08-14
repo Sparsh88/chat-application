@@ -96,7 +96,251 @@ const DEMO_ACCOUNTS: Record<string, any> = {
 
 const fallbackUsers: any[] = Object.values(DEMO_ACCOUNTS);
 
-// --- REST ENDPOINTS ---
+// Root Landing / Status endpoint
+app.get('/', (req: Request, res: Response) => {
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({
+      service: "Let's Connect Backend API",
+      status: 'online',
+      version: '1.0.0',
+      frontendUrl: 'https://chat-application-gamma-steel.vercel.app/',
+      databaseConnected: getIsConnected(),
+      endpoints: {
+        health: '/api/health',
+        users: '/api/users',
+        messages: '/api/messages/:id',
+        meetings: '/api/meetings'
+      }
+    });
+  }
+
+  const isConnected = getIsConnected();
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Let's Connect API - Backend Status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(168, 85, 247, 0.06) 50%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.15);
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34, 197, 94, 0.12);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.825rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.desc {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: #ffffff;
+      padding: 0.95rem 1.5rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+      margin-bottom: 1.5rem;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.55);
+      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+    }
+    .stat-title {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-value {
+      font-size: 0.925rem;
+      color: #f1f5f9;
+      font-weight: 700;
+      margin-top: 0.25rem;
+    }
+    .endpoints {
+      text-align: left;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      font-size: 0.825rem;
+    }
+    .endpoints-title {
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .endpoints code {
+      display: block;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      padding: 0.25rem 0;
+      font-size: 0.85rem;
+    }
+    .endpoints code span {
+      color: #34d399;
+      font-weight: 600;
+      display: inline-block;
+      width: 45px;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="card">
+    <div class="badge">
+      <div class="pulse-dot"></div>
+      Backend Server Active & Healthy
+    </div>
+    <h1>Let's Connect API</h1>
+    <p class="desc">The real-time backend service powering messaging, WebRTC calling, AI assistants, and meeting synchronization is running smoothly on Render.</p>
+    
+    <a href="https://chat-application-gamma-steel.vercel.app/" class="cta-btn" target="_blank" rel="noopener noreferrer">
+      <span>🚀 Launch Live Web App</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+    </a>
+
+    <div class="grid">
+      <div class="stat-card">
+        <div class="stat-title">Database</div>
+        <div class="stat-value">${isConnected ? '🟢 MongoDB Connected' : '🟡 In-Memory Mode'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Real-Time Engine</div>
+        <div class="stat-value">⚡ Socket.IO & WebRTC</div>
+      </div>
+    </div>
+
+    <div class="endpoints">
+      <div class="endpoints-title">
+        <span>Available REST Endpoints</span>
+        <a href="/api/health" style="color: #818cf8; text-decoration: none; font-weight: 500;">/api/health ↗</a>
+      </div>
+      <code><span>GET</span> /api/health</code>
+      <code><span>POST</span> /api/auth/login</code>
+      <code><span>POST</span> /api/auth/register</code>
+      <code><span>GET</span> /api/messages/:targetId</code>
+      <code><span>GET</span> /api/meetings</code>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html');
+  res.send(html);
+});
+
+app.get('/api', (_req: Request, res: Response) => {
+  res.json({
+    service: "Let's Connect Backend API",
+    status: 'online',
+    version: '1.0.0',
+    frontendUrl: 'https://chat-application-gamma-steel.vercel.app/',
+    databaseConnected: getIsConnected(),
+    endpoints: {
+      health: '/api/health',
+      users: '/api/users',
+      messages: '/api/messages/:id',
+      meetings: '/api/meetings'
+    }
+  });
+});
 
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
