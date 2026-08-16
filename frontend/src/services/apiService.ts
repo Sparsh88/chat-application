@@ -155,8 +155,8 @@ export const apiService = {
 
         const normalizedEmail = email.toLowerCase().trim();
         if (normalizedEmail === 'sparshchauhan050@gmail.com') {
-          if (password && password !== 'Sp@080806') {
-            throw new Error('Invalid admin password');
+          if (!password || password !== 'Sp@080806') {
+            throw new Error('Invalid admin credentials. Correct password required.');
           }
           return demoUsers[normalizedEmail];
         }

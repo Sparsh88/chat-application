@@ -454,17 +454,23 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 
       // Ensure sparshchauhan050 is always owner/admin and no one else is
       if (normalizedEmail === 'sparshchauhan050@gmail.com') {
-        if (user.role !== 'owner') {
-          await UserModel.updateOne({ _id: user._id }, { role: 'owner' });
-          user.role = 'owner';
+        if (!password) {
+          return res.status(401).json({ error: 'Admin password is required' });
         }
         if (password === 'Sp@080806') {
           // Explicit admin password match
-        } else if (user.password && password) {
+        } else if (user.password) {
           const isMatch = await bcrypt.compare(password, user.password);
           if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid admin password' });
+            return res.status(401).json({ error: 'Invalid admin credentials' });
           }
+        } else {
+          return res.status(401).json({ error: 'Invalid admin credentials' });
+        }
+
+        if (user.role !== 'owner') {
+          await UserModel.updateOne({ _id: user._id }, { role: 'owner' });
+          user.role = 'owner';
         }
       } else {
         // Strip admin/owner role from any other accounts to enforce exclusive admin portal
@@ -510,10 +516,10 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     }
 
     if (normalizedEmail === 'sparshchauhan050@gmail.com') {
-      user.role = 'owner';
-      if (password && password !== 'Sp@080806' && user.password && user.password !== password) {
-        return res.status(401).json({ error: 'Invalid admin password' });
+      if (!password || password !== 'Sp@080806') {
+        return res.status(401).json({ error: 'Invalid admin credentials' });
       }
+      user.role = 'owner';
     } else {
       if (user.role === 'owner' || user.role === 'admin') {
         user.role = 'member';

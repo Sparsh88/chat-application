@@ -10,8 +10,8 @@ export const LoginPage: React.FC = () => {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Login Form State
-  const [loginEmail, setLoginEmail] = useState('sparshchauhan050@gmail.com');
-  const [loginPassword, setLoginPassword] = useState('Sp@080806');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Sign Up Form State
   const [signUpName, setSignUpName] = useState('');
@@ -112,11 +112,6 @@ export const LoginPage: React.FC = () => {
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="text-xs font-semibold opacity-80">Email Address</label>
-                  {loginEmail.toLowerCase() === 'sparshchauhan050@gmail.com' && (
-                    <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Admin Account
-                    </span>
-                  )}
                 </div>
                 <div className="relative flex items-center">
                   <Mail className="w-4 h-4 opacity-50 absolute left-3.5 text-accent" />
@@ -125,7 +120,7 @@ export const LoginPage: React.FC = () => {
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="sparshchauhan050@gmail.com"
+                    placeholder="name@example.com"
                     className="w-full border text-xs rounded-xl pl-10 pr-3 py-3 focus:outline-none focus:border-accent transition-colors"
                     style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   />
@@ -236,86 +231,28 @@ export const LoginPage: React.FC = () => {
             </form>
           )}
 
-          {/* Demo Credentials Info Card */}
-          <div
-            className="p-3.5 rounded-2xl border text-xs space-y-2.5 transition-all"
-            style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
-          >
+          {/* Quick Demo Switcher (Members only) */}
+          <div className="pt-3 border-t space-y-2" style={{ borderColor: 'var(--border-color)' }}>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase font-bold tracking-wider opacity-70 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-accent" /> Demo Credentials
-              </span>
-              <span className="text-[10px] text-accent font-semibold px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20">
-                1-Click Access
-              </span>
+              <span className="text-[10px] uppercase font-bold opacity-60">Instant Demo Login</span>
+              <span className="text-[10px] opacity-50">Standard Member Accounts</span>
             </div>
-
-            {/* Admin Credential Banner */}
-            <div
-              onClick={() => {
-                setLoginEmail('sparshchauhan050@gmail.com');
-                setLoginPassword('Sp@080806');
-                setActiveTab('login');
-              }}
-              className="p-2.5 rounded-xl border border-accent/40 bg-accent/5 hover:bg-accent/10 cursor-pointer transition-all flex items-center justify-between gap-2 group"
-            >
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-accent text-white">ADMIN</span>
-                  <span className="text-xs font-bold text-accent truncate">Sparsh Chauhan</span>
-                </div>
-                <div className="text-[11px] opacity-80 font-mono truncate">
-                  sparshchauhan050@gmail.com
-                </div>
-                <div className="text-[10px] opacity-60 font-mono">
-                  Password: <span className="font-bold text-accent">Sp@080806</span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDemoLogin('Sparsh Chauhan', 'sparshchauhan050@gmail.com', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', 'Sp@080806');
-                }}
-                className="px-2.5 py-1.5 rounded-lg bg-accent text-white text-[11px] font-bold shadow-md shadow-accent/30 hover:opacity-90 transition-all shrink-0"
-              >
-                Sign In
-              </button>
-            </div>
-
-            {/* Member Credential Summary */}
-            <div className="flex items-center justify-between text-[11px] opacity-70 px-1">
-              <span>Member Demo: <span className="font-mono font-medium">sarah@letsconnect.io</span></span>
-              <span className="text-[10px] italic">No password required</span>
-            </div>
-          </div>
-
-          {/* Demo Account Quick Switcher */}
-          <div className="pt-2 border-t space-y-2" style={{ borderColor: 'var(--border-color)' }}>
-            <span className="text-[10px] uppercase font-bold opacity-60 block text-center">Quick Switcher</span>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('Sparsh Chauhan', 'sparshchauhan050@gmail.com', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', 'Sp@080806')}
-                className="p-2 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent transition-all bg-accent/10 border-accent text-accent shadow-sm"
-              >
-                <ShieldCheck className="w-3 h-3 text-accent" /> Sparsh (Admin)
-              </button>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleDemoLogin('Sarah Chen', 'sarah@letsconnect.io', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80')}
-                className="p-2 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent transition-all"
+                className="p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-accent transition-all"
                 style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
               >
-                <UserCheck className="w-3 h-3 text-accent" /> Sarah (Member)
+                <UserCheck className="w-3.5 h-3.5 text-accent" /> Sarah (Member)
               </button>
               <button
                 type="button"
                 onClick={() => handleDemoLogin('Marcus Vance', 'marcus@letsconnect.io', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80')}
-                className="p-2 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent transition-all"
+                className="p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-accent transition-all"
                 style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
               >
-                <UserCheck className="w-3 h-3 text-accent" /> Marcus (Member)
+                <UserCheck className="w-3.5 h-3.5 text-accent" /> Marcus (Member)
               </button>
             </div>
           </div>
