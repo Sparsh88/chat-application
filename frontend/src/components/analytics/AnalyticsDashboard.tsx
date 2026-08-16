@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { AreaChart, Area, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { MessageSquare, Users, Clock, HardDrive, TrendingUp, Activity, ShieldAlert, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Footer } from '../layout/Footer';
 
 const MOCK_WEEKLY = [
   { day: 'Mon', messages: 180, calls: 2 },
@@ -261,11 +260,6 @@ export const AnalyticsDashboard: React.FC = () => {
             </div>
           </>
         )}
-      </div>
-
-      {/* Persistent Social Contact Footer */}
-      <div className="mt-8">
-        <Footer variant="full" />
       </div>
     </div>
   );

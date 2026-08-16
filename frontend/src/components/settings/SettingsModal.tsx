@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Shield, LogOut, Camera, Upload, Image as ImageIcon, Settings as SettingsIcon, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Footer } from '../layout/Footer';
 
 export const SettingsModal: React.FC = () => {
   const { currentUser, switchUserRole, logout, updateUserAvatar, updateUserStatus } = useAuth();
@@ -231,11 +230,6 @@ export const SettingsModal: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Persistent Social Contact Footer */}
-      <div className="mt-8">
-        <Footer variant="full" />
       </div>
     </div>
   );

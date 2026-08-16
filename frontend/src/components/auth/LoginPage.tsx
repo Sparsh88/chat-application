@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Lock, Mail, ArrowRight, UserCheck, User, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, UserCheck, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Footer } from '../layout/Footer';
 
 export const LoginPage: React.FC = () => {
   const { login, registerUser } = useAuth();
@@ -57,17 +56,17 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen w-screen flex flex-col items-center justify-between p-4 sm:p-6 font-sans select-none relative overflow-x-hidden transition-colors duration-300"
+      className="min-h-screen w-screen flex flex-col items-center justify-center p-4 sm:p-6 font-sans select-none relative overflow-x-hidden transition-colors duration-300"
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Background Glow */}
       <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-accent/20 blur-3xl pointer-events-none animate-pulse"></div>
       <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-purple-600/20 blur-3xl pointer-events-none animate-pulse"></div>
 
-      <div className="flex-1 flex items-center justify-center w-full my-6">
+      <div className="w-full max-w-md my-auto">
         {/* Main Auth Card */}
         <div
-          className="w-full max-w-md rounded-3xl p-6 sm:p-8 border shadow-2xl relative z-10 space-y-6"
+          className="w-full rounded-3xl p-6 sm:p-8 border shadow-2xl relative z-10 space-y-6"
           style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
         >
           {/* Brand Header */}
@@ -257,11 +256,6 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Social Footer */}
-      <div className="w-full max-w-4xl z-10">
-        <Footer variant="full" />
       </div>
     </div>
   );
