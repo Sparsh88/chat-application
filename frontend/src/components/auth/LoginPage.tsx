@@ -236,22 +236,30 @@ export const LoginPage: React.FC = () => {
               <span className="text-[10px] uppercase font-bold opacity-60">Instant Demo Login</span>
               <span className="text-[10px] opacity-50">Standard Member Accounts</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handleDemoLogin('Sarah Chen', 'sarah@letsconnect.io', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80')}
-                className="p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-accent transition-all"
+                className="p-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent transition-all"
                 style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
               >
-                <UserCheck className="w-3.5 h-3.5 text-accent" /> Sarah (Member)
+                <UserCheck className="w-3.5 h-3.5 text-accent" /> Sarah
               </button>
               <button
                 type="button"
                 onClick={() => handleDemoLogin('Marcus Vance', 'marcus@letsconnect.io', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80')}
-                className="p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-accent transition-all"
+                className="p-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent transition-all"
                 style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
               >
-                <UserCheck className="w-3.5 h-3.5 text-accent" /> Marcus (Member)
+                <UserCheck className="w-3.5 h-3.5 text-accent" /> Marcus
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('Alex Rivera', 'alex.rivera@letsconnect.io', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80')}
+                className="p-2.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent transition-all"
+                style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}
+              >
+                <UserCheck className="w-3.5 h-3.5 text-accent" /> Alex
               </button>
             </div>
           </div>

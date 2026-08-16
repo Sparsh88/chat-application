@@ -42,7 +42,8 @@ const MOCK_CHANNELS: Channel[] = [
 const MOCK_DM_USERS: User[] = [
   { id: 'u-sarah', username: 'sarah_chen', name: 'Sarah Chen', email: 'sarah@letsconnect.io', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80', status: 'online', role: 'member', isVerified: true, createdAt: '2024-02-01', customStatus: '🎨 Reviewing Figma Component Tokens' },
   { id: 'u-marcus', username: 'marcus_v', name: 'Marcus Vance', email: 'marcus@letsconnect.io', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', status: 'away', role: 'member', isVerified: true, createdAt: '2024-02-10', customStatus: '☕ Away for lunch' },
-  { id: 'u-elena', username: 'elena_r', name: 'Elena Rostova', email: 'elena@letsconnect.io', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80', status: 'dnd', role: 'moderator', isVerified: true, createdAt: '2024-03-05', customStatus: '🔴 In deep work session' }
+  { id: 'u-elena', username: 'elena_r', name: 'Elena Rostova', email: 'elena@letsconnect.io', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80', status: 'dnd', role: 'moderator', isVerified: true, createdAt: '2024-03-05', customStatus: '🔴 In deep work session' },
+  { id: 'user-001', username: 'alex_rivera', name: 'Alex Rivera', email: 'alex.rivera@letsconnect.io', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80', status: 'online', role: 'member', isVerified: true, createdAt: '2024-01-10', customStatus: '💻 Developing new features' }
 ];
 
 const INITIAL_MESSAGES: Message[] = [

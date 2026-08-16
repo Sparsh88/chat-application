@@ -91,6 +91,26 @@ const DEMO_ACCOUNTS: Record<string, any> = {
     status: 'online',
     role: 'moderator',
     createdAt: '2024-03-05T08:00:00.000Z'
+  },
+  'alex.rivera@letsconnect.io': {
+    id: 'user-001',
+    email: 'alex.rivera@letsconnect.io',
+    name: 'Alex Rivera',
+    username: 'alex_rivera',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    role: 'member',
+    createdAt: '2024-01-10T08:00:00.000Z'
+  },
+  'alex@letsconnect.io': {
+    id: 'user-001',
+    email: 'alex.rivera@letsconnect.io',
+    name: 'Alex Rivera',
+    username: 'alex_rivera',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    status: 'online',
+    role: 'member',
+    createdAt: '2024-01-10T08:00:00.000Z'
   }
 };
 
