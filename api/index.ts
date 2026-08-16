@@ -173,11 +173,11 @@ MeetingSchema.index({ date: 1, time: 1 });
 const MeetingModel = mongoose.models.Meeting || model<IMeeting>('Meeting', MeetingSchema);
 
 const DEMO_ACCOUNTS: Record<string, any> = {
-  'alex.rivera@letsconnect.io': {
-    id: 'user-001',
-    email: 'alex.rivera@letsconnect.io',
-    name: 'Alex Rivera',
-    username: 'alex_rivera',
+  'sparshchauhan050@gmail.com': {
+    id: 'user-admin-sparsh',
+    email: 'sparshchauhan050@gmail.com',
+    name: 'Sparsh Chauhan',
+    username: 'sparshchauhan050',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     status: 'online',
     role: 'owner',
@@ -190,7 +190,7 @@ const DEMO_ACCOUNTS: Record<string, any> = {
     username: 'sarah_chen',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     status: 'online',
-    role: 'admin',
+    role: 'member',
     createdAt: '2024-02-01T08:00:00.000Z'
   },
   'marcus@letsconnect.io': {
@@ -286,14 +286,17 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Email is required' });
   }
 
-  const normalizedEmail = email.toLowerCase();
+  const normalizedEmail = email.toLowerCase().trim();
 
   try {
-    let user = await UserModel.findOne({ email: new RegExp(`^${email}$`, 'i') });
+    let user = await UserModel.findOne({ email: new RegExp(`^${normalizedEmail}$`, 'i') });
 
-    // Auto-create demo user if missing in DB
+    // Auto-create demo/admin user if missing in DB
     if (!user && DEMO_ACCOUNTS[normalizedEmail]) {
-      const demoData = DEMO_ACCOUNTS[normalizedEmail];
+      const demoData = { ...DEMO_ACCOUNTS[normalizedEmail] };
+      if (normalizedEmail === 'sparshchauhan050@gmail.com') {
+        demoData.password = await bcrypt.hash('Sp@080806', 10);
+      }
       user = await UserModel.create(demoData);
     }
 
@@ -301,10 +304,30 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Account not found. Please create an account first.' });
     }
 
-    if (user.password && password) {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ error: 'Invalid email or password' });
+    // Ensure sparshchauhan050 is always owner/admin and no one else is
+    if (normalizedEmail === 'sparshchauhan050@gmail.com') {
+      if (user.role !== 'owner') {
+        await UserModel.updateOne({ _id: user._id }, { role: 'owner' });
+        user.role = 'owner';
+      }
+      if (password === 'Sp@080806') {
+        // Explicit password match
+      } else if (user.password && password) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ error: 'Invalid admin password' });
+        }
+      }
+    } else {
+      if (user.role === 'owner' || user.role === 'admin') {
+        await UserModel.updateOne({ _id: user._id }, { role: 'member' });
+        user.role = 'member';
+      }
+      if (user.password && password) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
       }
     }
 

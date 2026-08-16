@@ -111,11 +111,11 @@ export const apiService = {
 
         // Default demo accounts check
         const demoUsers: Record<string, User> = {
-          'alex.rivera@letsconnect.io': {
-            id: 'user-001',
-            username: 'alex_rivera',
-            name: 'Alex Rivera',
-            email: 'alex.rivera@letsconnect.io',
+          'sparshchauhan050@gmail.com': {
+            id: 'user-admin-sparsh',
+            username: 'sparshchauhan050',
+            name: 'Sparsh Chauhan',
+            email: 'sparshchauhan050@gmail.com',
             avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
             status: 'online',
             role: 'owner',
@@ -128,7 +128,7 @@ export const apiService = {
             email: 'sarah@letsconnect.io',
             avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
             status: 'online',
-            role: 'admin',
+            role: 'member',
             createdAt: '2024-02-01T08:00:00.000Z'
           },
           'marcus@letsconnect.io': {
@@ -153,7 +153,13 @@ export const apiService = {
           }
         };
 
-        const normalizedEmail = email.toLowerCase();
+        const normalizedEmail = email.toLowerCase().trim();
+        if (normalizedEmail === 'sparshchauhan050@gmail.com') {
+          if (password && password !== 'Sp@080806') {
+            throw new Error('Invalid admin password');
+          }
+          return demoUsers[normalizedEmail];
+        }
         if (!user && demoUsers[normalizedEmail]) {
           return demoUsers[normalizedEmail];
         }

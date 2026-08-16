@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Hash, Code, Palette, Sparkles, Coffee, Plus, Search, ShieldCheck, Lock, ChevronDown, Pin, Archive, Heart } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
+import { Footer } from './Footer';
 
 export const ChannelSidebar: React.FC = () => {
   const { channels, directMessages, activeTarget, setActiveTarget, isE2EEEnabled, setIsE2EEEnabled, searchQuery, setSearchQuery, isLoadingUsers } = useChat();
@@ -192,6 +193,10 @@ export const ChannelSidebar: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Compact Sidebar Social Footer */}
+      <Footer variant="compact" />
     </aside>
   );
 };
+

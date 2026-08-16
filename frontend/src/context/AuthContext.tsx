@@ -17,17 +17,17 @@ interface AuthContextType {
 }
 
 const DEFAULT_USER: User = {
-  id: 'user-001',
-  username: 'alex_rivera',
-  name: 'Alex Rivera',
-  email: 'alex.rivera@letsconnect.io',
+  id: 'user-admin-sparsh',
+  username: 'sparshchauhan050',
+  name: 'Sparsh Chauhan',
+  email: 'sparshchauhan050@gmail.com',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
   status: 'online',
-  customStatus: '🚀 Building Next-Gen Chat SaaS',
-  statusEmoji: '💻',
+  customStatus: '👑 Website Owner & Head Admin',
+  statusEmoji: '🛡️',
   role: 'owner',
   isVerified: true,
-  bio: 'Full Stack Architect & UI Engineer | Open Source Enthusiast',
+  bio: 'Platform Creator & Sole Administrator | Let\'s Connect',
   createdAt: '2024-01-15T08:00:00.000Z',
   preferredLanguage: 'en',
   autoTranslate: false,
@@ -37,8 +37,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User>(() => {
-    const saved = localStorage.getItem('pulse_user');
-    return saved ? JSON.parse(saved) : DEFAULT_USER;
+    try {
+      const saved = localStorage.getItem('pulse_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Security guard: only sparshchauhan050@gmail.com can retain owner/admin privileges
+        if (parsed.email && parsed.email.toLowerCase() !== 'sparshchauhan050@gmail.com') {
+          if (parsed.role === 'owner' || parsed.role === 'admin') {
+            parsed.role = 'member';
+          }
+        } else if (parsed.email && parsed.email.toLowerCase() === 'sparshchauhan050@gmail.com') {
+          parsed.role = 'owner';
+        }
+        return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return DEFAULT_USER;
   });
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
@@ -60,9 +76,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, name?: string, avatar?: string, password?: string) => {
     const userFromBackend = await apiService.login(email, password);
+    const normalizedEmail = email.toLowerCase().trim();
+    const finalRole: User['role'] = normalizedEmail === 'sparshchauhan050@gmail.com' ? 'owner' : (userFromBackend.role === 'owner' || userFromBackend.role === 'admin' ? 'member' : (userFromBackend.role || 'member'));
+    
     const updatedUser: User = {
       ...currentUser,
       ...userFromBackend,
+      role: finalRole,
       avatar: avatar || userFromBackend.avatar || currentUser.avatar,
       status: 'online'
     };
@@ -77,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updatedUser: User = {
       ...currentUser,
       ...userFromBackend,
+      role: 'member',
       status: 'online'
     };
     setCurrentUser(updatedUser);
@@ -129,6 +150,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const switchUserRole = (role: User['role']) => {
+    // Only sparshchauhan050@gmail.com can ever switch to owner/admin
+    if (role === 'owner' || role === 'admin') {
+      if (currentUser.email.toLowerCase() !== 'sparshchauhan050@gmail.com') {
+        alert('Access Denied: Only Sparsh Chauhan (sparshchauhan050@gmail.com) is authorized to hold Admin privileges.');
+        return;
+      }
+    }
     setCurrentUser(prev => {
       const updated = { ...prev, role };
       localStorage.setItem('pulse_user', JSON.stringify(updated));
