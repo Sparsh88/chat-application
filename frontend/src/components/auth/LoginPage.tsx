@@ -129,7 +129,6 @@ export const LoginPage: React.FC = () => {
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="text-xs font-semibold opacity-80">Password</label>
-                  <a href="#forgot" className="text-[11px] text-accent font-medium hover:underline">Forgot password?</a>
                 </div>
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 opacity-50 absolute left-3.5 text-accent" />
