@@ -9,7 +9,7 @@ import mongoose, { Schema, model } from 'mongoose';
 import crypto from 'crypto';
 
 const MONGODB_URI = process.env.MONGODB_URI || "";
-const JWT_SECRET = process.env.JWT_SECRET || 'letsconnect_lifetime_jwt_secret_2026_key';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'letsconnect_lifetime_jwt_secret_2026_key';
 const LIFETIME_EXPIRY_SECONDS = 10 * 365 * 24 * 60 * 60; // 10 years
 
 function base64UrlEncode(str: string): string {

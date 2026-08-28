@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'letsconnect_lifetime_jwt_secret_2026_key';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'letsconnect_lifetime_jwt_secret_2026_key';
 // Default to 10 years (3650 days: 10 * 365 * 24 * 60 * 60 seconds)
 const LIFETIME_EXPIRY_SECONDS = 10 * 365 * 24 * 60 * 60;
 
