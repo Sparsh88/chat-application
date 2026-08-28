@@ -18,6 +18,7 @@ export interface User {
   publicKey?: string;
   preferredLanguage?: string;
   autoTranslate?: boolean;
+  token?: string;
 }
 
 export interface Reaction {

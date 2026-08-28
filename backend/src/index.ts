@@ -8,6 +8,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import bcrypt from 'bcryptjs';
 import { connectDB, getIsConnected } from './db.js';
+import { generateLifetimeToken, verifyLifetimeToken } from './jwt.js';
 import { UserModel } from './models/User.js';
 import { MessageModel } from './models/Message.js';
 import { MeetingModel } from './models/Meeting.js';
@@ -410,6 +411,13 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
         role: 'member'
       });
 
+      const token = generateLifetimeToken({
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role
+      });
+
       return res.status(201).json({
         id: newUser.id,
         email: newUser.email,
@@ -418,7 +426,8 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
         avatar: newUser.avatar,
         status: newUser.status,
         role: newUser.role,
-        createdAt: newUser.createdAt
+        createdAt: newUser.createdAt,
+        token
       });
     } catch (err: any) {
       console.error('Registration Error:', err);
@@ -430,6 +439,12 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
     if (existing) {
       return res.status(400).json({ error: 'Email already registered. Please log in.' });
     }
+    const token = generateLifetimeToken({
+      id: userId,
+      email,
+      name,
+      role: 'member'
+    });
     const user = {
       id: userId,
       email,
@@ -439,7 +454,8 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
       avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
       status: 'online',
       role: 'member',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      token
     };
     fallbackUsers.push(user);
     return res.status(201).json(user);
@@ -507,6 +523,13 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
         }
       }
 
+      const token = generateLifetimeToken({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      });
+
       return res.json({
         id: user.id,
         email: user.email,
@@ -514,7 +537,8 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
         username: user.username,
         avatar: user.avatar,
         status: user.status,
-        role: user.role
+        role: user.role,
+        token
       });
     } catch (err: any) {
       console.error('Login Error:', err);
@@ -549,8 +573,44 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       }
     }
 
-    return res.json(user);
+    const token = generateLifetimeToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    });
+
+    return res.json({ ...user, token });
   }
+});
+
+// AUTH: Verify & get session by lifetime token
+app.get('/api/auth/me', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No authorization token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  const decoded = verifyLifetimeToken(token);
+
+  if (!decoded) {
+    return res.status(401).json({ error: 'Invalid or expired session token' });
+  }
+
+  if (getIsConnected()) {
+    try {
+      const user = await UserModel.findOne({ id: decoded.id }, '-password').lean().exec();
+      if (!user) {
+        return res.json(decoded);
+      }
+      return res.json({ ...user, token });
+    } catch {
+      return res.json(decoded);
+    }
+  }
+
+  return res.json(decoded);
 });
 
 // USERS: Get all registered users (with lean query, projection, and pagination)

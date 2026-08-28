@@ -6,7 +6,70 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 // @ts-ignore
 import mongoose, { Schema, model } from 'mongoose';
+import crypto from 'crypto';
+
 const MONGODB_URI = process.env.MONGODB_URI || "";
+const JWT_SECRET = process.env.JWT_SECRET || 'letsconnect_lifetime_jwt_secret_2026_key';
+const LIFETIME_EXPIRY_SECONDS = 10 * 365 * 24 * 60 * 60; // 10 years
+
+function base64UrlEncode(str: string): string {
+  return Buffer.from(str)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+function base64UrlDecode(str: string): string {
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) {
+    base64 += '=';
+  }
+  return Buffer.from(base64, 'base64').toString('utf8');
+}
+
+function generateLifetimeToken(payload: { id: string; email: string; name: string; role: string }): string {
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  const fullPayload = {
+    ...payload,
+    iat: nowInSeconds,
+    exp: nowInSeconds + LIFETIME_EXPIRY_SECONDS
+  };
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
+  const signatureInput = `${encodedHeader}.${encodedPayload}`;
+  const signature = crypto
+    .createHmac('sha256', JWT_SECRET)
+    .update(signatureInput)
+    .digest('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+  return `${signatureInput}.${signature}`;
+}
+
+function verifyLifetimeToken(token: string): any {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const [encodedHeader, encodedPayload, signature] = parts;
+    const signatureInput = `${encodedHeader}.${encodedPayload}`;
+    const expectedSignature = crypto
+      .createHmac('sha256', JWT_SECRET)
+      .update(signatureInput)
+      .digest('base64')
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+    if (signature !== expectedSignature) return null;
+    const payload = JSON.parse(base64UrlDecode(encodedPayload));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 // Optimized Mongoose Serverless Connection Caching Pattern
 interface MongooseCache {
@@ -282,6 +345,13 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
       role: 'member'
     });
 
+    const token = generateLifetimeToken({
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role
+    });
+
     return res.status(201).json({
       id: newUser.id,
       email: newUser.email,
@@ -290,7 +360,8 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
       avatar: newUser.avatar,
       status: newUser.status,
       role: newUser.role,
-      createdAt: newUser.createdAt
+      createdAt: newUser.createdAt,
+      token
     });
   } catch (err: any) {
     console.error('Registration Error:', err);
@@ -357,6 +428,13 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       }
     }
 
+    const token = generateLifetimeToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    });
+
     return res.json({
       id: user.id,
       email: user.email,
@@ -364,11 +442,38 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       username: user.username,
       avatar: user.avatar,
       status: user.status,
-      role: user.role
+      role: user.role,
+      token
     });
   } catch (err: any) {
     console.error('Login Error:', err);
     return res.status(500).json({ error: 'Database login failed' });
+  }
+});
+
+// AUTH: Me / Session verify
+app.get('/api/auth/me', async (req: Request, res: Response) => {
+  await connectDB();
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No authorization token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  const decoded = verifyLifetimeToken(token);
+
+  if (!decoded) {
+    return res.status(401).json({ error: 'Invalid or expired session token' });
+  }
+
+  try {
+    const user = await UserModel.findOne({ id: decoded.id }, '-password').lean().exec();
+    if (!user) {
+      return res.json(decoded);
+    }
+    return res.json({ ...user, token });
+  } catch {
+    return res.json(decoded);
   }
 });
 

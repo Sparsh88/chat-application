@@ -72,6 +72,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       });
     }
+
+    // Lifetime token session verification
+    apiService.verifySession().then(verifiedUser => {
+      if (verifiedUser) {
+        setCurrentUser(prev => ({ ...prev, ...verifiedUser }));
+      }
+    });
   }, []);
 
   const login = async (email: string, name?: string, avatar?: string, password?: string) => {
@@ -88,6 +95,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setCurrentUser(updatedUser);
     localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
+    if (userFromBackend.token) {
+      localStorage.setItem('pulse_token', userFromBackend.token);
+    }
     setIsLoggedIn(true);
     localStorage.setItem('pulse_logged_in', 'true');
   };
@@ -102,6 +112,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setCurrentUser(updatedUser);
     localStorage.setItem('pulse_user', JSON.stringify(updatedUser));
+    if (userFromBackend.token) {
+      localStorage.setItem('pulse_token', userFromBackend.token);
+    }
     setIsLoggedIn(true);
     localStorage.setItem('pulse_logged_in', 'true');
   };
@@ -109,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setIsLoggedIn(false);
     localStorage.setItem('pulse_logged_in', 'false');
+    localStorage.removeItem('pulse_token');
   };
 
   const loginWithQR = () => {

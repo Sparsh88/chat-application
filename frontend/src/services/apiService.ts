@@ -76,6 +76,15 @@ async function deduplicatedFetch<T>(
   return promise;
 }
 
+const getAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('pulse_token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 export const apiService = {
   // Invalidate specific cache key or all caches
   invalidateCache(keyPrefix?: string) {
@@ -88,12 +97,12 @@ export const apiService = {
     }
   },
 
-  // Auth API
+  // Auth API with Lifetime Token Handling
   async login(email: string, password?: string): Promise<User> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ email, password }),
       });
 
@@ -102,7 +111,11 @@ export const apiService = {
         throw new Error(err.error || 'Login failed');
       }
 
-      return await response.json();
+      const userData = await response.json();
+      if (userData.token) {
+        localStorage.setItem('pulse_token', userData.token);
+      }
+      return userData;
     } catch (err: any) {
       // Handle network errors (e.g. backend server offline or VITE_BACKEND_URL not set)
       if (err.name === 'TypeError' || err.message === 'Failed to fetch') {
@@ -202,7 +215,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ email, name, password, username }),
       });
 
@@ -212,6 +225,9 @@ export const apiService = {
       }
 
       const newUser = await response.json();
+      if (newUser.token) {
+        localStorage.setItem('pulse_token', newUser.token);
+      }
       apiService.invalidateCache('users');
       return newUser;
     } catch (err: any) {
@@ -335,7 +351,7 @@ export const apiService = {
     apiService.invalidateCache('meetings');
     const response = await fetch(`${API_BASE_URL}/api/meetings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(meeting),
     });
 
@@ -344,5 +360,20 @@ export const apiService = {
     }
 
     return response.json();
+  },
+
+  // Verify Lifetime Session Token
+  async verifySession(): Promise<User | null> {
+    const token = localStorage.getItem('pulse_token');
+    if (!token) return null;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch {
+      return null;
+    }
   }
 };
